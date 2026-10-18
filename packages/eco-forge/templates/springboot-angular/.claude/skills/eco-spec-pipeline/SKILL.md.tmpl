@@ -38,6 +38,10 @@ than one found by a code gate later. Treat the remaining (non-blocking) findings
 Write `hld.md`, `lld.md`, `integration.md`, `api/openapi.yaml`, and ADRs under `docs/adr/`.
 Each design section cites the REQ-IDs it realises. Diagrams are Mermaid text, not images.
 Gate: design sign-off (human).
+Before sign-off, run `eco-forge-design-lint docs/specs/<feature>` — the Layer-1 prevention gate.
+It fails (exit 2) on design defects that would otherwise become code defects: a requirement with
+no design coverage, a design citing an undeclared requirement, an OpenAPI operation with no error
+responses or no security, and a decision with no ADR. Resolve each before construction.
 
 ### /eco:plan <feature>
 Write `tasks.md`: work items, each citing its REQ-IDs and a definition of done. When GitLab is

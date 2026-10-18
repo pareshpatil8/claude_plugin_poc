@@ -50,6 +50,9 @@ Before any design or code:
 - The Figma-vs-spec checklist finds missing screen states (empty/loading/error/disabled),
   accessibility issues and scope creep before a component is built.
 - ADRs record the trade-offs, so a design defect is visible and reviewable, not implicit.
+- **`eco-forge-design-lint`** is a deterministic design-defect gate (exit 2) covering:
+  requirements with no design coverage, design citing an undeclared requirement, OpenAPI
+  operations missing error responses or security, and decisions with no ADR.
 
 ## Layer 2 — Prevent in construction
 
@@ -88,6 +91,6 @@ It does **not** claim "defect-free" — no process can. It makes defects hard to
 catch, and impossible to merge silently, with evidence at every step.
 
 ## Where this is proven today
-- spec-lint: 148-test suite; demo catches ambiguity, weak NFR, conflict, unclassified PII, TBD.
+- spec-lint + design-lint: 156-test suite; demos catch ambiguity/weak-NFR/conflict/unclassified-PII/TBD and untraced-requirement/missing-error-response/missing-auth/undocumented-decision.
 - Gate catch rate: 8/8 on the planted-defect catalogue (Semgrep live; SCA + SpotBugs separately).
 - SCA reachability: Log4Shell blocks; unused transitive waives with evidence.
