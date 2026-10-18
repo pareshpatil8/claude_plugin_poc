@@ -3,61 +3,67 @@
 Headline metric: **median total tokens per passing task** — total = input + output + cache-creation
 (the fresh-billed work). A token saving that lowers the pass rate does not count.
 
-## Results — pooled by arm (reps=5, both tasks, subscription / Sonnet)
+## Results — per task (reps=5, subscription / Sonnet)
 
-| Arm | Runs | Pass rate | Median total tokens | Tokens/passing task | vs baseline | Median cost (USD) |
-|-----|------|-----------|---------------------|---------------------|-------------|-------------------|
-| vanilla  | 10 | 100% | 17,688 | 17,688 | 0.0%   | 0.0933 |
-| eco-full | 10 | 100% | 23,427 | 23,427 | +32.4% | 0.1189 |
+| Task | Arm | Pass | Median total tokens | vs vanilla | vs eco-full | Median turns | Median cost |
+|------|-----|------|---------------------|-----------|-------------|--------------|-------------|
+| `bugfix-ref-length` | vanilla  | 5/5 | 16,485 | —      | −29.5% | 4 | $0.0850 |
+| `bugfix-ref-length` | eco-full | 5/5 | 23,392 | +41.9% | —      | 7 | $0.1210 |
+| `bugfix-ref-length` | eco-ctx  | 5/5 | 29,813 | +80.8% | +27.4% | 10 | $0.1624 |
+| `feature-sla-policy` | vanilla  | 5/5 | 18,852 | —      | −19.7% | 7 | $0.0981 |
+| `feature-sla-policy` | eco-full | 5/5 | 23,463 | +24.5% | —      | 7 | $0.1183 |
+| `feature-sla-policy` | eco-ctx  | 5/5 | 29,965 | +58.9% | +27.7% | 7 | $0.1567 |
 
-## Results — per task
+## Pooled by arm (both tasks)
 
-| Task | Arm | Pass | Median total tokens | eco vs vanilla | Median turns |
-|------|-----|------|---------------------|----------------|--------------|
-| `bugfix-ref-length` (one-line fix) | vanilla  | 5/5 | 16,485 | —      | 4 |
-| `bugfix-ref-length`                | eco-full | 5/5 | 23,392 | +41.9% | 7 |
-| `feature-sla-policy` (test-first feature) | vanilla  | 5/5 | 18,852 | —      | 7 |
-| `feature-sla-policy`               | eco-full | 5/5 | 23,463 | +24.5% | 7 |
+| Arm | Pass rate | Median total tokens | vs vanilla | vs eco-full |
+|-----|-----------|---------------------|-----------|-------------|
+| vanilla  | 100% | 17,689 | 0.0%   | −24.5% |
+| eco-full | 100% | 23,428 | +32.4% | 0.0%   |
+| eco-ctx  | 100% | 29,889 | +69.0% | +27.6% |
 
 ---
 
-## What these two sessions establish
+## What these runs establish
 
-**1. Quality is equal and perfect on both arms: 100% pass, every task, every rep.** Both vanilla and
-the eco ecosystem always produce code that passes the deterministic check. On tasks this
-well-specified there is no *correctness* gap to measure — so the comparison here is purely about
-tokens, and the ecosystem's real value (governance, traceability, defect prevention) is not what a
-green/red check can capture.
+**1. Quality is equal: 100% pass on every arm, task and rep.** No correctness gap to measure on these
+deterministic tasks — the comparison is purely about tokens.
 
-**2. The ecosystem currently costs MORE tokens, not fewer — and that is expected.** `eco-full` is the
-ecosystem's *discipline* (CLAUDE.md + path rules + agents + the `/eco-*` workflow). It has no
-token-*saving* component installed yet. So it can only add tokens relative to vanilla; the question
-is how much, and whether it amortises.
+**2. The eco ecosystem (`eco-full`) costs ~25–42% more tokens than vanilla**, shrinking with task size
+(bugfix +42% → feature +24%), most of it one-time cache-creation. This is the governance tax; the
+net saving must come from the Tier-2 token tools.
 
-**3. The overhead is modest and shrinks — the alarming first number was a cold-cache artifact.**
-- Session 1 (cold cache, 1 rep): eco measured **+177%**. That was the first eco run paying the
-  one-time cache-creation cost of loading the entire ecosystem.
-- Session 2 (warm cache, median of 5 reps): **+32% pooled**, and lower on the bigger task.
-- The steady-state overhead is **~25–42%**, not 177%. Most of the ecosystem's context is paid once
-  and then read from cache.
+**3. context-mode (the first Tier-2 tool) makes these tasks *worse*, not better: +27.6% vs eco-full.**
+This is the important, honest finding — and it is exactly what the tool's own design predicts:
 
-**4. Overhead falls as the task grows.** Bugfix (+41.9%) → feature (+24.5%). The ecosystem's cost is
-largely fixed per session; the more real work a task contains, the smaller a fraction that fixed
-cost becomes. This is the amortisation the design predicted, visible across just two task sizes.
+- context-mode saves tokens by keeping *large* raw tool output (50 KB logs, API snapshots) out of
+  the context window, routing it through a sandbox + FTS5 index.
+- Our golden tasks produce *tiny* tool output — one file read, a short offline Maven run. There is
+  nothing large to compress. So context-mode's machinery (SessionStart routing injection, a
+  PreToolUse routing-block that denies piped Bash and pushes the model toward `ctx_*` tools) is
+  **pure overhead**: it adds context and extra turns (bugfix 7 → 10 turns) for no payoff.
+- The tool engaged correctly (its hooks fired, its routing-block intercepted the model's piped
+  `./mvnw`); it simply has nothing to do on this task shape.
 
-## The honest bottom line
-On deterministic, well-specified tasks and with **no token-saving tools installed**, the eco
-ecosystem adds ~25–42% tokens for equal pass rates — the price of its governance discipline, and it
-shrinks with task size and caching. The *net saving* the project targets depends entirely on the
-**Tier-2 harness tools** (context-mode, rtk, caveman, ponytail, headroom), whose job is to claw back
-more than this overhead on large, ambiguous, multi-file work. This benchmark is now the trustworthy
-baseline they must beat.
+**The engineering conclusion: a tool-output-compression tool must be gated by task profile.** Making
+context-mode a blanket default would *raise* token use on ordinary small-output coding tasks. It
+belongs on large-output / long-session work. This is a concrete default-policy decision the
+benchmark just earned.
 
-## Next measurements
-1. **Install and wire the Tier-2 token tools**, then run the leave-one-out arms into this same ledger
-   — each tool's contribution shows as its delta vs `eco-full`.
-2. **Add a large, genuinely ambiguous task** (multi-file, underspecified) where vanilla wastes tokens
-   re-exploring and the scaffolding's structure can invert the sign.
-3. **Headroom arm on Bedrock** (reconfigurable endpoint), merged into this report.
+## Why the next task matters
+These two tasks are the wrong shape to show any output-compression tool (context-mode, and next
+`rtk`) in a good light. To evaluate that whole tool class fairly, the matrix needs a
+**large-tool-output task** — a bug whose diagnosis forces reading/grepping a lot and running
+verbose commands. Only then can we see whether context-mode/rtk invert from +28% to a real saving.
+That task is being added next; the leave-one-out arms then run against it too.
 
-_Matrix cost so far: $2.21 total across both sessions (20 cells, all passing)._
+## Arms status
+- `vanilla`, `eco-full`, `eco-ctx` (context-mode) — **done** (reps=5, both tasks).
+- `eco-rtk` (shell-output compression) — next; rtk-ai/rtk release binary, hook mode.
+- `eco-ponytail` ("write minimum code") — installable here; a behaviour-change arm.
+- `caveman` — skill only, acts on subagent→orchestrator reports; this single-agent task shape can't
+  exercise it (install + note, measure once an orchestration task exists).
+- `headroom` — Bedrock compression proxy; runs only where the endpoint is reconfigurable → deferred
+  to the Bedrock environment, merged into this report later.
+
+_Matrix cost so far: $3.80 total across three sessions (30 cells, all passing)._
