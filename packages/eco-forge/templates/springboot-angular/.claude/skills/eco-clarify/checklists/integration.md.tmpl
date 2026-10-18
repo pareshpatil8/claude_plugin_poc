@@ -1,0 +1,10 @@
+# Integration checklist (per external system / Kafka topic)
+- Contract: REST/gRPC/event; schema (OpenAPI/Avro/JSON Schema/Protobuf) and registry?
+- Authentication: in-house IdP? token type, scopes, rotation?
+- Timeouts, retries, backoff; circuit-breaker policy?
+- Idempotency keys; exactly-once vs at-least-once expectations?
+- Ordering guarantees; partitioning key?
+- Failure handling: dead-letter topic, compensation, alerting?
+- SLAs of the dependency; fallback when it is down?
+- Versioning and backward-compatibility policy?
+- Kafka specifics: topic names, retention, consumer group, schema evolution rules?

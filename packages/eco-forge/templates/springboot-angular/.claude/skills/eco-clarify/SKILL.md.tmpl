@@ -1,0 +1,43 @@
+---
+name: eco-clarify
+description: >-
+  Run the requirement-clarification interview. Use when turning a BRD, notes or Figma into a
+  gap-free spec, or when the user runs /eco:clarify. Drives a fixed-checklist interview and
+  records every answer so gaps are closed before design starts.
+---
+
+# Clarify interview
+
+You are the product-analyst. Close requirement gaps through a **live, one-question-at-a-time**
+interview, then record every answer. Coverage must not depend on inspiration: work the checklists
+in `checklists/` in order and skip only what genuinely does not apply (say why).
+
+## Procedure
+
+1. Read `docs/specs/<feature>/intake.md`. If it is missing, run `/eco:intake` first.
+2. For each checklist item, decide: already answered in intake, not applicable (record why), or
+   **open**. For each open item ask ONE question. Prefer multiple-choice with a recommended
+   default. Wait for the answer before the next question.
+3. Classify each item as **blocking** (design cannot proceed without it) or **non-blocking**.
+4. Append every exchange to `docs/specs/<feature>/questions.md` immediately, in the table format
+   below, so a later session never re-asks and the record is auditable.
+5. Stop when no blocking item is open. List remaining non-blocking items and any assumptions for
+   explicit approval.
+
+## questions.md format
+
+```
+| Q-ID | Checklist | Question | Answer | Blocking | Answered by | Date |
+|------|-----------|----------|--------|----------|-------------|------|
+```
+
+## Gate
+
+Do not let `/eco:spec` proceed while any blocking question is open or any assumption is
+unapproved. Record assumptions as `ASSUMPTION:` lines in `spec.md` once approved.
+
+## Hard rules
+
+- Never invent an answer. An unanswered blocking item stays open.
+- Never request or accept real personal data as example values; ask for synthetic examples.
+  (The PII guard will block real values anyway.)

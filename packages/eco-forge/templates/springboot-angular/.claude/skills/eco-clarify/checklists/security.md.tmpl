@@ -1,0 +1,10 @@
+# Security checklist (OWASP ASVS L2, relevant chapters)
+- AuthN/AuthZ: session model; deny-by-default; object-level checks (prevent IDOR)?
+- Input validation and output encoding; injection surfaces (SQL/NoSQL/command/LDAP)?
+- File upload (if any): allowed types, size, scanning, storage, download auth — see OWASP File Upload Cheat Sheet?
+- Secrets: where stored (Vault), never in code/logs/config?
+- Crypto: data at rest and in transit; algorithms and key management?
+- Error handling: no sensitive data in errors/logs; RFC 9457 problem details?
+- Rate limiting / anti-automation on sensitive endpoints?
+- Security headers, CORS, CSRF posture (stateless bearer tokens)?
+- Logging/monitoring of security events for the audit trail?

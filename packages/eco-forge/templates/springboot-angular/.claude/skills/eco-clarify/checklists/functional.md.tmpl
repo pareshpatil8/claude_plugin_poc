@@ -1,0 +1,11 @@
+# Functional checklist
+- Actors and roles: who uses this, and what may each role do?
+- Primary success flow: the main path, step by step.
+- Alternate and exception flows: what else can happen, and the recovery for each.
+- Inputs and validation: every field, its type, required/optional, format, min/max, allowed values.
+- Business rules: calculations, state transitions, approvals, limits.
+- Idempotency: what happens on retry or double-submit?
+- Data lifecycle: create, read, update, delete, archive — which are in scope?
+- Permissions: object-level rules (who can see/act on which records)?
+- Audit: what actions must be recorded, and who can see the audit trail?
+- Volume: expected records and request rates (feeds NFRs).

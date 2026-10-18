@@ -39,7 +39,9 @@ export function isValidAadhaar(digits: string): boolean {
   let c = 0;
   const reversed = digits.split("").reverse().map(Number);
   for (let i = 0; i < reversed.length; i++) {
-    c = VERHOEFF_D[c]![VERHOEFF_P[i % 8]![reversed[i] as number]!]!;
+    const row = VERHOEFF_D[c] ?? [];
+    const permuted = (VERHOEFF_P[i % 8] ?? [])[reversed[i] as number] ?? 0;
+    c = row[permuted] ?? 0;
   }
   return c === 0;
 }

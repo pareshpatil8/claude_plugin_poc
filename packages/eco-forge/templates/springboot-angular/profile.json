@@ -2,17 +2,85 @@
   "name": "springboot-angular",
   "description": "Spring Boot 4 / Java 21 / Maven backend with an Angular frontend, Oracle, Kafka, OpenShift",
   "files": [
-    { "dest": "CLAUDE.md", "template": "CLAUDE.md.tmpl" },
-    { "dest": ".claude/settings.json", "generator": "claude-settings" },
-    { "dest": ".mcp.json", "generator": "mcp-config" },
-    { "dest": "eco.config.json", "generator": "eco-config" },
-    { "dest": "eco.gates.yaml", "template": "eco/eco.gates.yaml.tmpl" },
-    { "dest": ".eco/overrides/README.md", "template": "eco/overrides-README.md.tmpl" },
-    { "dest": "docs/memory/decisions.md", "template": "docs/memory/decisions.md.tmpl" },
-    { "dest": "docs/memory/gotchas.md", "template": "docs/memory/gotchas.md.tmpl" },
-    { "dest": "docs/memory/glossary.md", "template": "docs/memory/glossary.md.tmpl" },
-    { "dest": "docs/specs/README.md", "template": "docs/specs/README.md.tmpl" },
-    { "dest": "docs/adr/README.md", "template": "docs/adr/README.md.tmpl" },
-    { "dest": "docs/adr/0000-template.md", "template": "docs/adr/0000-template.md.tmpl" }
+    {
+      "dest": "CLAUDE.md",
+      "template": "CLAUDE.md.tmpl"
+    },
+    {
+      "dest": ".claude/settings.json",
+      "generator": "claude-settings"
+    },
+    {
+      "dest": ".mcp.json",
+      "generator": "mcp-config"
+    },
+    {
+      "dest": "eco.config.json",
+      "generator": "eco-config"
+    },
+    {
+      "dest": "eco.gates.yaml",
+      "template": "eco/eco.gates.yaml.tmpl"
+    },
+    {
+      "dest": ".eco/overrides/README.md",
+      "template": "eco/overrides-README.md.tmpl"
+    },
+    {
+      "dest": "docs/memory/decisions.md",
+      "template": "docs/memory/decisions.md.tmpl"
+    },
+    {
+      "dest": "docs/memory/gotchas.md",
+      "template": "docs/memory/gotchas.md.tmpl"
+    },
+    {
+      "dest": "docs/memory/glossary.md",
+      "template": "docs/memory/glossary.md.tmpl"
+    },
+    {
+      "dest": "docs/specs/README.md",
+      "template": "docs/specs/README.md.tmpl"
+    },
+    {
+      "dest": "docs/adr/README.md",
+      "template": "docs/adr/README.md.tmpl"
+    },
+    {
+      "dest": "docs/adr/0000-template.md",
+      "template": "docs/adr/0000-template.md.tmpl"
+    },
+    {
+      "dest": ".claude/skills/eco-clarify/SKILL.md",
+      "template": ".claude/skills/eco-clarify/SKILL.md.tmpl"
+    },
+    {
+      "dest": ".claude/skills/eco-clarify/checklists/functional.md",
+      "template": ".claude/skills/eco-clarify/checklists/functional.md.tmpl"
+    },
+    {
+      "dest": ".claude/skills/eco-clarify/checklists/nfr.md",
+      "template": ".claude/skills/eco-clarify/checklists/nfr.md.tmpl"
+    },
+    {
+      "dest": ".claude/skills/eco-clarify/checklists/integration.md",
+      "template": ".claude/skills/eco-clarify/checklists/integration.md.tmpl"
+    },
+    {
+      "dest": ".claude/skills/eco-clarify/checklists/security.md",
+      "template": ".claude/skills/eco-clarify/checklists/security.md.tmpl"
+    },
+    {
+      "dest": ".claude/skills/eco-clarify/checklists/dpdp.md",
+      "template": ".claude/skills/eco-clarify/checklists/dpdp.md.tmpl"
+    },
+    {
+      "dest": ".claude/skills/eco-clarify/checklists/figma.md",
+      "template": ".claude/skills/eco-clarify/checklists/figma.md.tmpl"
+    },
+    {
+      "dest": ".claude/commands/eco-clarify.md",
+      "template": ".claude/commands/eco-clarify.md.tmpl"
+    }
   ]
 }

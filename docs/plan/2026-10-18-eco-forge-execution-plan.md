@@ -295,3 +295,22 @@ gantt
 2. **M1-08:** red-team suite. It also turns the deny rules from "the model refused" into "the tool blocked it".
 3. **M1-10:** clarify checklists.
 4. **M1-17:** bench harness (subscription), plus stand-in setup (GitLab CE, Nexus OSS, kind + Argo CD, Vault, Keycloak).
+
+### Sprint 1 continued, 2026-10-18 (session 2)
+
+| Task | Status | Evidence |
+|---|---|---|
+| M1-05 Guard hook | ✅ Done | Command normaliser unwraps sh -c/sudo/env/xargs/pipes/subst/escaped-alias; blocks secret reads, force-push, non-Dev oc/kubectl/helm/argocd. **Blocking proven via the installed binary (exit 2), not model refusal** — this closes the "not proven" item. |
+| M1-06 PII guard | ✅ Done | Aadhaar (Verhoeff), PAN (layout), Indian phone, email, bulk-export detection; redacted samples; example/test domains and placeholders pass so synthetic fixtures work. Registered on UserPromptSubmit and PreToolUse. |
+| M1-08 Red-team suite | ✅ Done | ~20 bypass attempts as regression tests; hook fails closed on crash/bad payload. |
+| M1-10 Clarify checklists | ✅ Done | eco-clarify skill + 6 checklists (functional, NFR/ISO 25010, integration, security/ASVS, DPDP, Figma) + /eco:clarify command; installed by init. |
+| M1-17 Bench harness | ✅ Done (mechanism) | Runner over `claude -p --output-format json`, arms/ablations, deterministic check, median tokens-per-**passing**-task, vs-baseline report. Live smoke run on the subscription produced a real report. Full matrix (~15 tasks × 3 reps × arms) deferred to protect budget. |
+
+**Guard enforcement proof (the earlier "not proven" item):** the installed `eco-forge-guard` binary blocked `sh -c "git push --force origin main"` and `oc --namespace prod delete pod x` with exit 2 and a deny decision, and allowed `mvn test`. Enforcement is in the hook, independent of the model.
+
+**Test totals:** 110 tests, ~94% line coverage, lint + typecheck clean. No runtime dependencies; no install scripts.
+
+### Still open in sprint 1 (next)
+- Full bench matrix run on the subscription (needs budget/time; harness ready).
+- Stand-in environments (GitLab CE, Nexus OSS, kind + Argo CD, Vault, Keycloak) — rehearsal only.
+- M1-12 spec-pipeline commands beyond clarify (intake, spec, design, plan, uat, export).

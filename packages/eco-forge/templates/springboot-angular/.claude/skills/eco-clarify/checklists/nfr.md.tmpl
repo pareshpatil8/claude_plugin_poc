@@ -1,0 +1,13 @@
+# NFR checklist (ISO/IEC 25010) — every answer must be a NUMBER, not an adjective
+- Performance: p95/p99 latency at a stated load (e.g. p95 < 300 ms at 200 RPS)?
+- Throughput: sustained and peak requests/records per second?
+- Availability: target (e.g. 99.9%) and maintenance-window policy?
+- Capacity/scalability: data growth per year; horizontal scaling expectations?
+- Recovery: RPO and RTO; backup frequency?
+- Security level: OWASP ASVS L2 assumed — any deviation?
+- Privacy: data classes handled; DPDP applies? (see dpdp.md)
+- Accessibility: WCAG 2.2 AA assumed — any exception?
+- Localisation: languages, locales, time zones, currency formats?
+- Observability: required metrics, logs, traces, alerts, dashboards?
+- Compatibility: supported browsers/devices; API versioning policy?
+- Maintainability: coverage and mutation thresholds (defaults in eco.gates.yaml) — any change?

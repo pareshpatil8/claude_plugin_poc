@@ -10,7 +10,6 @@
 
 const WRAPPERS = new Set(["sh", "bash", "zsh", "dash", "ksh", "env", "xargs", "nice", "nohup", "setsid", "time", "stdbuf", "timeout", "sudo", "doas", "command", "builtin", "exec", "eval", "watch"]);
 const INLINE_FLAGS = new Set(["-c", "-lc", "-ic", "--command"]);
-const SEPARATORS = /[\n;&|]+|\|\||&&/;
 
 /** Splits on separators, then unwraps each segment, returning every command the string could run. */
 export function effectiveCommands(raw: string): string[] {
@@ -96,7 +95,7 @@ function unwrap(command: string): string | null {
   if (tokens.length === 0) {
     return null;
   }
-  let head = (tokens[0] as string).replace(/^\\/, "");
+  const head = (tokens[0] as string).replace(/^\\/, "");
   const base = head.split("/").pop() as string;
   if (!WRAPPERS.has(base)) {
     return null;
