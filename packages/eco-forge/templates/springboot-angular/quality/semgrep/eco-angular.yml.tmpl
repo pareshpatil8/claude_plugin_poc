@@ -1,0 +1,23 @@
+rules:
+  - id: eco-angular-bypass-security-trust
+    languages: [typescript]
+    severity: ERROR
+    message: >-
+      bypassSecurityTrust* disables Angular's built-in XSS protection (OWASP A03). Sanitise the
+      value or render it through safe bindings instead.
+    metadata:
+      owasp: "A03:2021 Injection (XSS)"
+      cwe: "CWE-79"
+    patterns:
+      - pattern-either:
+          - pattern: $S.bypassSecurityTrustHtml(...)
+          - pattern: $S.bypassSecurityTrustScript(...)
+          - pattern: $S.bypassSecurityTrustResourceUrl(...)
+
+  - id: eco-angular-innerhtml-binding
+    languages: [typescript]
+    severity: WARNING
+    message: "Binding to [innerHTML] can introduce XSS; prefer text interpolation or a sanitising pipe."
+    paths:
+      include: ["*.html"]
+    pattern-regex: \[innerHTML\]=

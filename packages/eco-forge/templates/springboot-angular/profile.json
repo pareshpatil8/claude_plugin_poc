@@ -81,6 +81,14 @@
     {
       "dest": ".claude/commands/eco-clarify.md",
       "template": ".claude/commands/eco-clarify.md.tmpl"
+    },
+    {
+      "dest": "quality/semgrep/eco-java.yml",
+      "template": "quality/semgrep/eco-java.yml.tmpl"
+    },
+    {
+      "dest": "quality/semgrep/eco-angular.yml",
+      "template": "quality/semgrep/eco-angular.yml.tmpl"
     }
   ]
 }

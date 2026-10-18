@@ -1,0 +1,58 @@
+# eco-forge custom Semgrep rules for Spring Boot 4 / Java 21. Complements the registry OWASP packs.
+rules:
+  - id: eco-sql-string-concatenation
+    languages: [java]
+    severity: ERROR
+    message: >-
+      SQL built by string concatenation is an injection risk (OWASP A03). Use a parameterised
+      query, a bound @Query, or the Criteria API.
+    metadata:
+      owasp: "A03:2021 Injection"
+      cwe: "CWE-89"
+    patterns:
+      - pattern-either:
+          - pattern: $STMT.executeQuery("..." + ...)
+          - pattern: $STMT.executeUpdate("..." + ...)
+          - pattern: $EM.createQuery("..." + ...)
+          - pattern: $EM.createNativeQuery("..." + ...)
+
+  - id: eco-pii-in-logs
+    languages: [java]
+    severity: ERROR
+    message: >-
+      Possible personal data in a log statement (DPDP). Fields named applicant*/email/phone/
+      aadhaar/pan/name must never be logged; log a non-identifying reference instead.
+    metadata:
+      compliance: "DPDP"
+    patterns:
+      - pattern-either:
+          - pattern: $LOG.info(..., $X.getApplicantName(), ...)
+          - pattern: $LOG.info(..., $X.getApplicantEmail(), ...)
+          - pattern: $LOG.$LEVEL("...{}...", ..., $X.getApplicantEmail(), ...)
+          - pattern-regex: (?i)log\.(info|debug|warn|error|trace)\([^;]*(aadhaar|\bpan\b|applicantEmail|applicantName|phoneNumber)
+
+  - id: eco-upload-no-content-type-check
+    languages: [java]
+    severity: WARNING
+    message: >-
+      File upload handled without a magic-byte/content check. Validate the real type with Apache
+      Tika and scan before storing (OWASP File Upload Cheat Sheet). Use eco-forge add file-upload.
+    metadata:
+      owasp: "File Upload"
+    patterns:
+      - pattern: $M(..., MultipartFile $F, ...) { ... }
+      - pattern-not-inside: |
+          $M(..., MultipartFile $F, ...) { ... Tika ... }
+      - pattern-not-inside: |
+          $M(..., MultipartFile $F, ...) { ... $SVC.validate(...); ... }
+
+  - id: eco-disabled-method-security
+    languages: [java]
+    severity: ERROR
+    message: >-
+      Do not disable CSRF without a stateless-bearer justification, and never permitAll() on an
+      API path. Deny by default (OWASP A01 Broken Access Control).
+    metadata:
+      owasp: "A01:2021 Broken Access Control"
+    patterns:
+      - pattern-regex: requestMatchers\("/api/.*"\)\.permitAll\(\)
