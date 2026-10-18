@@ -51,8 +51,9 @@ gates → GitLab/OpenShift delivery, with minimum tokens and proactive (shift-le
 - DPDP: @Pii, retention/erasure job (Oracle), pii-check gate.
 - Perf: nfr.md→k6 thresholds generator (eco-forge-perf). A11y: axe gate proven.
 - Planted-defect catalogue: **catch rate 8/8** (measure.mjs). Mutation testing: NOT yet wired.
-- Token bench harness: runBench over `claude -p --output-format json`, arms/ablations, median tokens-per-
-  PASSING-task, vs-baseline report. **Smoke run worked; full matrix NOT run.**
+- Token bench harness: `eco-forge-bench run/report` CLI over `claude -p --output-format json`;
+  throwaway workspace per cell (eco arms get `eco-forge init`), deterministic external check,
+  resumable JSONL ledger, budget caps, usage-limit abort-without-record. **Full matrix RUN (real).**
 - 17 AGENTS (tool allowlists, model tiers): delivery-planner (orchestrator/ring-master: decompose→order→
   route via Task tool→track status→manage deps; writes no app code), product-analyst, nfr-analyst,
   integration-analyst, privacy-reviewer, solution-architect, qa-uat-writer, backend-dev, frontend-dev,
@@ -65,11 +66,16 @@ gates → GitLab/OpenShift delivery, with minimum tokens and proactive (shift-le
 - SCOPED headline (vanilla vs eco-forge, 5 tasks×3 reps×2 arms = 30 runs) ≈ $30–45 → FITS.
 - Prod per-feature on Bedrock: ~$6–12 with eco-forge techniques (est; benchmark will measure).
 
-## IMMEDIATE NEXT (agreed, awaiting final go on ceiling)
-1. Add a **cumulative cost cap** to the bench harness (reads total_cost_usd per run, hard-stops at a ceiling).
-2. Run the **scoped headline benchmark** on the golden repo at a **$40 ceiling** (user may pick $25 lean),
-   reporting cumulative $ as it goes.
-3. Produce bench-report.md (tokens-per-passing-task, pass rate, % saving).
+## BENCHMARK RESULTS (real runs, subscription/Sonnet, reps=5, 100% pass everywhere)
+See `docs/plan/2026-10-18-bench-report.md`. Pooled median total tokens vs eco-full:
+- vanilla −24.5% (baseline 17.7k) · eco-full 23.4k (governance tax +32% vs vanilla, shrinks with task size)
+- eco-ctx (context-mode, output-compaction) **+27.6%** — HURTS small-output coding tasks
+- eco-ponytail (write-min-code behaviour) **+4.8%** + fewer turns — near-neutral, aligned with workload
+- eco-rtk (Bash-output compaction) — running; smoke showed 17 turns (heavy churn), expected to mirror context-mode
+Conclusion: **gate each token tool by task profile.** ponytail = candidate default; context-mode/rtk =
+situational (large-output work only), OFF for ordinary coding. Tools are benchmark arms, pinned installs
+(context-mode npm; ponytail+rtk cloned/built), logged in teardown-register. caveman (skill, subagent→
+orchestrator only) + headroom (Bedrock proxy) NOT runnable here → deferred/documented.
 
 ## Pending (not built)
 - Mutation testing (PIT/Stryker) wired to gate. Full ablation matrix + OWASP Benchmark scorecard.
