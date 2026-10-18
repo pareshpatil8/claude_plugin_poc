@@ -7,7 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.yourorg.golden.TestcontainersConfiguration;
+import com.yourorg.golden.IntegrationTest;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -17,9 +17,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -28,10 +26,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.json.JsonMapper;
 
 /** End to end against real Oracle Free and Kafka (Testcontainers): the Dev-onwards database, not H2. */
-@SpringBootTest
 @AutoConfigureMockMvc
-@Import(TestcontainersConfiguration.class)
-class ServiceRequestIntegrationTest {
+class ServiceRequestIntegrationTest extends IntegrationTest {
 
     @Autowired
     MockMvc mvc;

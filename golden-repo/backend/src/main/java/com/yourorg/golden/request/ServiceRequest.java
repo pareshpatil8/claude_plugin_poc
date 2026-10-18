@@ -22,10 +22,12 @@ public class ServiceRequest {
     private String reference;
 
     /** Personal data (DPDP): never logged, never published on events. */
+    @Pii(Pii.Class.IDENTIFIER)
     @Column(name = "applicant_name", nullable = false, length = 200)
     private String applicantName;
 
     /** Personal data (DPDP): never logged, never published on events. */
+    @Pii(Pii.Class.CONTACT)
     @Column(name = "applicant_email", nullable = false, length = 320)
     private String applicantEmail;
 
@@ -46,6 +48,9 @@ public class ServiceRequest {
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
+    @Column(name = "closed_at")
+    private Instant closedAt;
+
     protected ServiceRequest() {
         // for JPA
     }
@@ -60,6 +65,10 @@ public class ServiceRequest {
         this.status = Status.SUBMITTED;
         this.createdBy = createdBy;
         this.createdAt = createdAt;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getReference() {
@@ -80,5 +89,10 @@ public class ServiceRequest {
 
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    void close(Instant when) {
+        this.status = Status.CLOSED;
+        this.closedAt = when;
     }
 }
