@@ -10,5 +10,12 @@
     "eco": true,
     "description": "Full eco ecosystem installed (CLAUDE.md, path rules, agents, commands, gates); task routed through its eco slash command.",
     "claudeArgs": ["--permission-mode", "bypassPermissions"]
+  },
+  {
+    "id": "eco-ctx",
+    "eco": true,
+    "contextMode": true,
+    "description": "eco-full plus the context-mode token tool (MCP sandbox + routing hooks that keep raw tool output out of context).",
+    "claudeArgs": ["--permission-mode", "bypassPermissions"]
   }
 ]

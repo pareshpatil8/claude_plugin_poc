@@ -119,6 +119,43 @@ describe("prepareWorkspace", () => {
     }
   });
 
+  it("wireContextMode merges hooks after existing ones, registers MCP, and appends routing", async () => {
+    const { wireContextMode } = await import("../src/bench/context-mode.js");
+    const cmRoot = mkdtempSync(path.join(tmpdir(), "cm-root-"));
+    const ws = mkdtempSync(path.join(tmpdir(), "cm-ws-"));
+    try {
+      // minimal fake context-mode install
+      mkdirSync(path.join(cmRoot, "hooks"), { recursive: true });
+      mkdirSync(path.join(cmRoot, "configs", "claude-code"), { recursive: true });
+      writeFileSync(path.join(cmRoot, "cli.bundle.mjs"), "process.exit(0)", "utf8");
+      writeFileSync(
+        path.join(cmRoot, "hooks", "hooks.json"),
+        JSON.stringify({ hooks: { PreToolUse: [{ matcher: "Bash", hooks: [{ type: "command", command: 'node "${CLAUDE_PLUGIN_ROOT}/hooks/pretooluse.mjs"' }] }] } }),
+        "utf8",
+      );
+      writeFileSync(path.join(cmRoot, "configs", "claude-code", "CLAUDE.md"), "ROUTING RULES", "utf8");
+      // eco-shaped workspace
+      mkdirSync(path.join(ws, ".claude"), { recursive: true });
+      writeFileSync(path.join(ws, ".claude", "settings.json"), JSON.stringify({ hooks: { PreToolUse: [{ matcher: "*", hooks: [{ type: "command", command: "eco-forge-guard" }] }] } }), "utf8");
+      writeFileSync(path.join(ws, ".mcp.json"), JSON.stringify({ mcpServers: {} }), "utf8");
+      writeFileSync(path.join(ws, "CLAUDE.md"), "# project", "utf8");
+
+      wireContextMode(ws, { cmRoot, storageDir: path.join(ws, ".ctxstore") });
+
+      const settings = JSON.parse(readFileSync(path.join(ws, ".claude", "settings.json"), "utf8")) as { hooks: Record<string, { hooks: { command: string }[] }[]> };
+      // eco guard still first, context-mode appended after
+      assert.equal(settings.hooks.PreToolUse?.[0]?.hooks[0]?.command, "eco-forge-guard");
+      assert.match(settings.hooks.PreToolUse?.[1]?.hooks[0]?.command ?? "", /pretooluse\.mjs/);
+      assert.ok(!(settings.hooks.PreToolUse?.[1]?.hooks[0]?.command ?? "").includes("CLAUDE_PLUGIN_ROOT")); // placeholder substituted
+      const mcp = JSON.parse(readFileSync(path.join(ws, ".mcp.json"), "utf8")) as { mcpServers: Record<string, unknown> };
+      assert.ok("context-mode" in mcp.mcpServers);
+      assert.match(readFileSync(path.join(ws, "CLAUDE.md"), "utf8"), /ROUTING RULES/);
+    } finally {
+      rmSync(cmRoot, { recursive: true, force: true });
+      rmSync(ws, { recursive: true, force: true });
+    }
+  });
+
   it("requires ecoCliPath for an eco arm", () => {
     const src = mkdtempSync(path.join(tmpdir(), "eco-src-"));
     try {

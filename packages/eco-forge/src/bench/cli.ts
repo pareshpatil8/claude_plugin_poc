@@ -11,6 +11,7 @@ import { expandPlan } from "./plan.js";
 import { runSession } from "./session.js";
 import type { BenchArm, BenchTask, RunResult, RunUsage } from "./types.js";
 import { cleanupWorkspace, ensureDir, prepareWorkspace, type AddedFile, type TaskRegression } from "./workspace.js";
+import { contextModeEnv, wireContextMode } from "./context-mode.js";
 
 interface TaskConfig extends BenchTask {
   readonly title?: string;
@@ -23,6 +24,8 @@ interface TaskConfig extends BenchTask {
 
 interface ArmConfig extends BenchArm {
   readonly eco: boolean;
+  /** When true, the context-mode token tool is wired into this arm's workspace. */
+  readonly contextMode?: boolean;
 }
 
 const EMPTY: RunUsage = { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheCreationTokens: 0, costUsd: 0, durationMs: 0, numTurns: 0 };
@@ -40,6 +43,7 @@ run options:
   --session-budget <usd>   Stop this session at this spend (default: unlimited)
   --max-runs <n>           Safety stop after N runs this session
   --eco-cli <path>         Path to eco-forge dist/cli.js (default: alongside this CLI)
+  --cm-root <path>         Install dir of context-mode (required for a context-mode arm)
   --run-timeout <sec>      Per-run claude timeout in seconds (default 900)
 
 report options:
@@ -99,6 +103,7 @@ function doRun(args: readonly string[]): number {
       "session-budget": { type: "string" },
       "max-runs": { type: "string" },
       "eco-cli": { type: "string" },
+      "cm-root": { type: "string" },
       "run-timeout": { type: "string" },
       help: { type: "boolean", short: "h", default: false },
     },
@@ -118,6 +123,7 @@ function doRun(args: readonly string[]): number {
   const ecoCliPath = values["eco-cli"]
     ? path.resolve(values["eco-cli"])
     : path.resolve(fileURLToPath(new URL("../cli.js", import.meta.url)));
+  const cmRoot = values["cm-root"] ? path.resolve(values["cm-root"]) : undefined;
 
   const tasks = loadJson<TaskConfig[]>(values.tasks);
   const arms = loadJson<ArmConfig[]>(values.arms);
@@ -149,11 +155,22 @@ function doRun(args: readonly string[]): number {
       // The eco arm routes the task through its slash command; vanilla gets the raw prompt.
       const prompt = armCfg.eco && taskCfg.ecoCommand ? `/${taskCfg.ecoCommand} ${task.prompt}` : task.prompt;
       const claudeArgs = [...(armCfg.claudeArgs ?? [])];
+      let spawnEnv = process.env;
+      if (armCfg.contextMode) {
+        if (!cmRoot) {
+          throw new Error("--cm-root is required for a context-mode arm");
+        }
+        const cmCfg = { cmRoot, storageDir: path.join(ws, ".ctxstore") };
+        wireContextMode(ws, cmCfg);
+        claudeArgs.push("--mcp-config", path.join(ws, ".mcp.json"));
+        spawnEnv = { ...process.env, ...contextModeEnv(cmCfg) };
+      }
       const invoked = spawnSync("claude", ["-p", prompt, "--output-format", "json", ...claudeArgs], {
         cwd: ws,
         encoding: "utf8",
         timeout: runTimeoutMs,
         maxBuffer: 128 * 1024 * 1024,
+        env: spawnEnv,
       });
       const stdout = invoked.stdout ?? "";
       const stderr = invoked.stderr ?? "";
