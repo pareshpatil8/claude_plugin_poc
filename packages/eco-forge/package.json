@@ -11,7 +11,8 @@
     "eco-forge-trace": "dist/gates/trace-cli.js",
     "eco-forge-sca": "dist/gates/sca-cli.js",
     "eco-forge-spec-lint": "dist/qa/spec-lint-cli.js",
-    "eco-forge-design-lint": "dist/qa/design-lint-cli.js"
+    "eco-forge-design-lint": "dist/qa/design-lint-cli.js",
+    "eco-forge-perf": "dist/gates/nfr-perf-cli.js"
   },
   "files": [
     "dist",

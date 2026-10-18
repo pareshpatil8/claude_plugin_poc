@@ -1,0 +1,13 @@
+// eco-forge performance test skeleton. Run: eco-forge-perf docs/specs/<feature> > options.gen.js
+// then: k6 run quality/k6/service.k6.js  (BASE_URL and a bearer TOKEN from the env)
+import http from "k6/http";
+import { check } from "k6";
+export { options } from "./options.gen.js"; // generated from nfr.md — thresholds come from the agreed NFRs
+
+const BASE = __ENV.BASE_URL || "http://localhost:8080";
+const TOKEN = __ENV.TOKEN || "";
+
+export default function () {
+  const res = http.get(`${BASE}/actuator/health`, { headers: TOKEN ? { Authorization: `Bearer ${TOKEN}` } : {} });
+  check(res, { "status is 200": (r) => r.status === 200 });
+}

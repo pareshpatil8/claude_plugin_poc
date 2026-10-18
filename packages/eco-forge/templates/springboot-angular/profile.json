@@ -133,6 +133,10 @@
     {
       "dest": "quality/trivy/trivy.yaml",
       "template": "quality/trivy/trivy.yaml.tmpl"
+    },
+    {
+      "dest": "quality/k6/service.k6.js",
+      "template": "quality/k6/service.k6.js.tmpl"
     }
   ]
 }
