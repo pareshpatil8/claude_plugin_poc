@@ -2,6 +2,9 @@ import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import path from "node:path";
 
+/** Angular 22 (frontend toolchain) needs Node >= 22.22.3; the eco-forge CLI itself runs on >= 22.12. */
+export const NODE_MINIMUM = "22.22.3";
+
 export type CheckStatus = "ok" | "missing" | "outdated";
 
 export interface CheckResult {
@@ -68,7 +71,7 @@ export function compareVersions(a: string, b: string): number {
 }
 
 export function runDoctor(dir: string, probe: Probe = defaultProbe, nodeVersion = process.versions.node): CheckResult[] {
-  const results: CheckResult[] = [versionCheck("node", nodeVersion, "22.12.0", true, "Install Node.js 22 LTS")];
+  const results: CheckResult[] = [versionCheck("node", nodeVersion, NODE_MINIMUM, true, "Install Node.js 22 LTS (22.23 or later)")];
 
   for (const tool of TOOLS) {
     let found: string | undefined;

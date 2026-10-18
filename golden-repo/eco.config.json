@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "project": "golden-service-desk",
+  "profile": "springboot-angular",
+  "classification": "synthetic",
+  "provider": "subscription",
+  "models": {
+    "high": "opus",
+    "mid": "sonnet",
+    "low": "haiku"
+  },
+  "codebase": "brownfield"
+}

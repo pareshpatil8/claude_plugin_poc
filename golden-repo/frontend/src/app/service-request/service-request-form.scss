@@ -1,0 +1,65 @@
+:host {
+  display: block;
+  max-width: 36rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-block-end: 1rem;
+}
+
+label {
+  font-weight: 600;
+}
+
+.optional {
+  font-weight: 400;
+}
+
+input,
+select,
+textarea {
+  font: inherit;
+  padding: 0.5rem;
+  border: 1px solid #595959; // 7:1 contrast on white
+  border-radius: 4px;
+}
+
+[aria-invalid='true'] {
+  border-color: #b00020;
+  border-width: 2px;
+}
+
+:focus-visible {
+  outline: 3px solid #1a5fb4;
+  outline-offset: 2px;
+}
+
+.error {
+  color: #b00020; // 6.5:1 contrast on white
+  margin: 0;
+}
+
+.status {
+  padding: 0.75rem;
+  border-inline-start: 4px solid #1b7d3a;
+  background: #eef7f0;
+}
+
+button {
+  font: inherit;
+  padding: 0.6rem 1.2rem;
+  min-height: 44px; // touch target
+  color: #fff;
+  background: #1a5fb4;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:disabled {
+    background: #595959;
+    cursor: not-allowed;
+  }
+}

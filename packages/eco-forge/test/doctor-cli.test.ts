@@ -23,7 +23,7 @@ const ALL_OK = { git: "2.43.0", java: "21.0.4", docker: "29.0.0", python3: "3.13
 
 describe("doctor", () => {
   it("passes when every tool meets its minimum", () => {
-    const results = runDoctor(tempDir(), fakeProbe(ALL_OK), "22.22.0");
+    const results = runDoctor(tempDir(), fakeProbe(ALL_OK), "22.23.3");
     assert.equal(doctorExitCode(results), 0, formatDoctor(results));
   });
 
@@ -32,6 +32,11 @@ describe("doctor", () => {
     const results = runDoctor(tempDir(), fakeProbe({ ...withoutJava, python3: "3.9.0" }), "20.1.0");
     const byName = Object.fromEntries(results.map((r) => [r.name, r.status]));
     assert.equal(byName.node, "outdated");
+    assert.equal(
+      runDoctor(tempDir(), fakeProbe(ALL_OK), "22.22.0").find((r) => r.name === "node")?.status,
+      "outdated",
+      "Node 22.22.0 is below the Angular 22 minimum",
+    );
     assert.equal(byName.java, "missing");
     assert.equal(byName.python, "outdated");
     assert.equal(doctorExitCode(results), 1);
@@ -40,7 +45,7 @@ describe("doctor", () => {
 
   it("falls back to alternative commands (podman, python)", () => {
     const { docker: _d, python3: _p, ...rest } = ALL_OK;
-    const results = runDoctor(tempDir(), fakeProbe({ ...rest, podman: "5.0.0", python: "3.12.0" }), "22.12.0");
+    const results = runDoctor(tempDir(), fakeProbe({ ...rest, podman: "5.0.0", python: "3.12.0" }), "22.22.3");
     assert.equal(doctorExitCode(results), 0);
   });
 
@@ -48,7 +53,7 @@ describe("doctor", () => {
     const dir = tempDir();
     writeFileSync(path.join(dir, "mvnw"), "");
     const { mvn: _m, ...rest } = ALL_OK;
-    const maven = runDoctor(dir, fakeProbe(rest), "22.12.0").find((r) => r.name === "maven");
+    const maven = runDoctor(dir, fakeProbe(rest), "22.23.3").find((r) => r.name === "maven");
     assert.equal(maven?.status, "ok");
   });
 

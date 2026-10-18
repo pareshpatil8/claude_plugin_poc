@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "ecoForgeVersion": "0.1.0-dev.0",
+  "profile": "springboot-angular",
+  "codebase": "brownfield",
+  "files": {
+    ".claude/settings.json": {
+      "sha256": "79b62903ae73f2ca04fdf0c99d20402e1813d15d67a491318a5e99cbbcab64c0",
+      "template": "generator:claude-settings"
+    },
+    ".eco/overrides/README.md": {
+      "sha256": "5a21a1af319b07241021f790655caba1abc1daf6bb4bae4f66374c59c444675c",
+      "template": "eco/overrides-README.md.tmpl"
+    },
+    ".mcp.json": {
+      "sha256": "d8e397af03b5b032f21d0aa967086f0c78b33c87b76f2e9898ae0a144df7de02",
+      "template": "generator:mcp-config"
+    },
+    "CLAUDE.md": {
+      "sha256": "b551356ef9016c5c321dc861b07112fe4d3eb86110c2fba3fd2b8d48c7679700",
+      "template": "CLAUDE.md.tmpl"
+    },
+    "docs/adr/0000-template.md": {
+      "sha256": "1f6ad974dc9e9ddf17260873630ccf7d51575d4cbcdf477d650b0e766bb9837a",
+      "template": "docs/adr/0000-template.md.tmpl"
+    },
+    "docs/adr/README.md": {
+      "sha256": "9ae6b3f384475b75985e6e9ad10a51b24a76a5f9ffaa142caf4b0042abe660f6",
+      "template": "docs/adr/README.md.tmpl"
+    },
+    "docs/memory/decisions.md": {
+      "sha256": "82334685932707267f04e1a9fc4a7912d686311ad58558c8c6be380124fc3f78",
+      "template": "docs/memory/decisions.md.tmpl"
+    },
+    "docs/memory/glossary.md": {
+      "sha256": "07b9377275584a662b91905c29ab23e8360c6a2795126b097c6b3be91acd63d6",
+      "template": "docs/memory/glossary.md.tmpl"
+    },
+    "docs/memory/gotchas.md": {
+      "sha256": "f84d9aa077d322b00b0e9f112f77c968d1c8c678b090b684019b5ae95a173175",
+      "template": "docs/memory/gotchas.md.tmpl"
+    },
+    "docs/specs/README.md": {
+      "sha256": "e159f88721f98e32bae66bbf53fe3572bf4ceea7b2b1ca9aa1268dc9989b62c5",
+      "template": "docs/specs/README.md.tmpl"
+    },
+    "eco.config.json": {
+      "sha256": "a38f4da634e27a1e0fd4f30498a61510e27b85b3021b800ccc537c5283e02ec1",
+      "template": "generator:eco-config"
+    },
+    "eco.gates.yaml": {
+      "sha256": "b1fc8fbb8de99c7e5ce06971d29cf1b72ba0e238b6761a9cf657e55695ba3a66",
+      "template": "eco/eco.gates.yaml.tmpl"
+    }
+  }
+}

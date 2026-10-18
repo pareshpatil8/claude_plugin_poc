@@ -6,6 +6,10 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.strict,
   {
+    files: ["scripts/**/*.mjs"],
+    languageOptions: { globals: { console: "readonly", process: "readonly", URL: "readonly" } },
+  },
+  {
     rules: {
       "no-console": "off",
       "@typescript-eslint/consistent-type-imports": "error",

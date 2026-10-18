@@ -1,0 +1,31 @@
+# Quality gate thresholds for golden-service-desk. Managed by eco-forge; override per project in
+# .eco/overrides/ rather than editing here. Starting values: tuned after the M1/M2 baselines.
+schemaVersion: 1
+coverage:
+  changedLinesMin: 80        # percent (JaCoCo, frontend coverage)
+mutation:
+  changedCodeMin: 60         # percent (PIT, Stryker)
+findings:
+  blockSeverities: [critical, high]   # new findings at these severities block merge
+  mediumTriageSlaDays: 14
+  newOnly: true                        # pre-existing findings are baselined in DefectDojo
+secrets:
+  max: 0
+accessibility:
+  axeBlockImpacts: [critical, serious]
+  lighthouseA11yMin: 95
+performance:
+  source: docs/specs/*/nfr.md          # thresholds come from each feature's NFRs
+traceability:
+  requireTestPerRequirement: true
+  requireUatCasePerRequirement: true
+openshift:
+  nonRoot: true
+  readOnlyRootFilesystem: true
+  requireResourceLimits: true
+  requireProbes: true
+  forbidLatestTag: true
+waivers:
+  requireApprover: true
+  requireExpiry: true
+  maxDurationDays: 90

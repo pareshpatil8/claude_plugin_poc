@@ -1,0 +1,9 @@
+# AI-environment profile: no Oracle needed. Oracle behaviour is still verified in CI via Testcontainers.
+spring:
+  datasource:
+    url: jdbc:h2:mem:golden;MODE=Oracle;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+  flyway:
+    placeholders:
+      id_type: BIGINT
