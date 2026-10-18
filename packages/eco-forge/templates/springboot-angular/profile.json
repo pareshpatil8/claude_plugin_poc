@@ -1,0 +1,18 @@
+{
+  "name": "springboot-angular",
+  "description": "Spring Boot 4 / Java 21 / Maven backend with an Angular frontend, Oracle, Kafka, OpenShift",
+  "files": [
+    { "dest": "CLAUDE.md", "template": "CLAUDE.md.tmpl" },
+    { "dest": ".claude/settings.json", "generator": "claude-settings" },
+    { "dest": ".mcp.json", "generator": "mcp-config" },
+    { "dest": "eco.config.json", "generator": "eco-config" },
+    { "dest": "eco.gates.yaml", "template": "eco/eco.gates.yaml.tmpl" },
+    { "dest": ".eco/overrides/README.md", "template": "eco/overrides-README.md.tmpl" },
+    { "dest": "docs/memory/decisions.md", "template": "docs/memory/decisions.md.tmpl" },
+    { "dest": "docs/memory/gotchas.md", "template": "docs/memory/gotchas.md.tmpl" },
+    { "dest": "docs/memory/glossary.md", "template": "docs/memory/glossary.md.tmpl" },
+    { "dest": "docs/specs/README.md", "template": "docs/specs/README.md.tmpl" },
+    { "dest": "docs/adr/README.md", "template": "docs/adr/README.md.tmpl" },
+    { "dest": "docs/adr/0000-template.md", "template": "docs/adr/0000-template.md.tmpl" }
+  ]
+}

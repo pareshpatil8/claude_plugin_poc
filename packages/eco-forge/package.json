@@ -1,0 +1,32 @@
+{
+  "name": "@yourorg/eco-forge",
+  "version": "0.1.0-dev.0",
+  "description": "Installs and configures the eco-forge agentic delivery ecosystem around Claude Code",
+  "license": "UNLICENSED",
+  "type": "module",
+  "bin": {
+    "eco-forge": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "templates"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "build:test": "tsc -p tsconfig.test.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test": "npm run build && npm run build:test && node --test --experimental-test-coverage --test-coverage-include=.test-dist/src/**/*.js --test-coverage-lines=80 --test-coverage-branches=75 --test-coverage-functions=80 \".test-dist/test/**/*.test.js\"",
+    "prepack": "npm run build"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "22.20.5",
+    "eslint": "10.12.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.0"
+  }
+}

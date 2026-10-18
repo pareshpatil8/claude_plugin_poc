@@ -1,0 +1,68 @@
+# CI for the eco-forge package itself (M1-01). Images resolve through the Nexus container proxy:
+# set NEXUS_DOCKER_PROXY in the GitLab group variables (e.g. nexus.example.internal:8443/).
+# The npm registry comes from the NPM_CONFIG_REGISTRY group variable (Nexus npm proxy).
+
+stages: [lint, test, package, security]
+
+variables:
+  NODE_IMAGE: "${NEXUS_DOCKER_PROXY}node:22-bookworm-slim"
+  NEXUS_GHCR_PROXY: "ghcr.io/"   # override with the Nexus GHCR proxy in group variables
+  npm_config_cache: "$CI_PROJECT_DIR/.npm"
+
+default:
+  image: $NODE_IMAGE
+  interruptible: true
+  cache:
+    key:
+      files: [package-lock.json]
+    paths: [.npm/]
+
+.install: &install
+  - npm ci --ignore-scripts --no-audit --no-fund
+
+lint:
+  stage: lint
+  script:
+    - *install
+    - npm run lint
+    - npm run typecheck
+
+test:
+  stage: test
+  script:
+    - *install
+    - npm test
+  coverage: '/all files\s*\|\s*([\d.]+)/'
+
+package:
+  stage: package
+  script:
+    - *install
+    - cd packages/eco-forge && npm pack --pack-destination "$CI_PROJECT_DIR"
+    - node scripts/check-no-install-scripts.mjs
+  artifacts:
+    paths: ["*.tgz"]
+    expire_in: 1 week
+
+dependency-audit:
+  stage: security
+  script:
+    - *install
+    - npm audit --omit=dev --audit-level=high
+    - npm audit --audit-level=critical
+
+secrets:
+  stage: security
+  image:
+    name: "${NEXUS_GHCR_PROXY}gitleaks/gitleaks:v8.28.0"
+    entrypoint: [""]
+  cache: []
+  script:
+    - gitleaks detect --source . --no-banner --redact --exit-code 1
+
+sast:
+  stage: security
+  image: "${NEXUS_DOCKER_PROXY}semgrep/semgrep:1.179.0"
+  cache: []
+  script:
+    - semgrep scan --config p/typescript --config p/nodejs --error --metrics=off packages/eco-forge/src

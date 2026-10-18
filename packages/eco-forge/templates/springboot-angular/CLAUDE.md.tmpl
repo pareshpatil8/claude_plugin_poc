@@ -1,0 +1,22 @@
+# {{projectName}}
+
+Managed by eco-forge {{ecoForgeVersion}} (profile `{{profile}}`). Keep this file short: it is an index
+loaded into every session. Put detail in the linked files, which load only when needed.
+
+## Stack
+- Backend: Spring Boot 4, Java 21, Maven wrapper; Oracle (Dev onwards), H2/embedded Postgres locally; Kafka
+- Frontend: Angular (strict TypeScript, standalone components)
+- Delivery: GitLab CI → OpenShift GitOps (Argo CD), Helm, HashiCorp Vault
+
+## Where things live
+- Specs, one folder per feature: `docs/specs/<feature>/` (see `docs/specs/README.md`)
+- Decisions: `docs/memory/decisions.md`, ADRs in `docs/adr/`
+- Known pitfalls: `docs/memory/gotchas.md`; terms: `docs/memory/glossary.md`
+- Quality gate thresholds: `eco.gates.yaml`
+
+## Non-negotiable rules
+1. Every change traces to a requirement ID (`REQ-nnn`) and has tests; write the test first.
+2. Never put real personal data (PII) in prompts, code, tests, fixtures or logs. Use synthetic data.
+3. Never read or print secrets (.env, keys, Vault tokens, kube or AWS credentials).
+4. Never deploy, run `oc`/`kubectl` against anything except Dev, or force-push.
+5. A task is done only when the gates in `eco.gates.yaml` pass. Report failures honestly.

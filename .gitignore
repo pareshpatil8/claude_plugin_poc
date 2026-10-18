@@ -1,0 +1,6 @@
+node_modules/
+dist/
+coverage/
+*.tgz
+.eco-tmp/
+.test-dist/

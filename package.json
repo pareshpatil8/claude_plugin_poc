@@ -1,0 +1,17 @@
+{
+  "name": "eco-forge-workspace",
+  "private": true,
+  "description": "Workspace for @yourorg/eco-forge and its companion assets",
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "lint": "npm run lint --workspaces",
+    "typecheck": "npm run typecheck --workspaces",
+    "test": "npm run test --workspaces"
+  }
+}
