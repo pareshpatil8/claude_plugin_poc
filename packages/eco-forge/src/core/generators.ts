@@ -50,10 +50,18 @@ function claudeSettings(ctx: GeneratorContext): string {
       env.ANTHROPIC_DEFAULT_HAIKU_MODEL = settings.models.low;
     }
   }
+  // The guard runs FIRST (before any other eco-forge hook added later), so a blocked action is
+  // stopped before tool output is captured or compressed. Enforcement lives in the hook, not the
+  // model: exit 2 denies the call regardless of what the model intended.
+  const guard = { type: "command", command: "eco-forge-guard" };
   return json({
     $schema: "https://json.schemastore.org/claude-code-settings.json",
     env,
     permissions: { deny: DENY_RULES },
+    hooks: {
+      PreToolUse: [{ matcher: "*", hooks: [guard] }],
+      UserPromptSubmit: [{ hooks: [guard] }],
+    },
   });
 }
 

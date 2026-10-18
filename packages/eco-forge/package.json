@@ -5,7 +5,8 @@
   "license": "UNLICENSED",
   "type": "module",
   "bin": {
-    "eco-forge": "dist/cli.js"
+    "eco-forge": "dist/cli.js",
+    "eco-forge-guard": "dist/guard-cli.js"
   },
   "files": [
     "dist",
@@ -19,7 +20,7 @@
     "build:test": "tsc -p tsconfig.test.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint .",
-    "test": "npm run build && npm run build:test && node --test --experimental-test-coverage --test-coverage-include=.test-dist/src/**/*.js --test-coverage-lines=80 --test-coverage-branches=75 --test-coverage-functions=80 \".test-dist/test/**/*.test.js\"",
+    "test": "npm run build && npm run build:test && node --test --experimental-test-coverage --test-coverage-include=.test-dist/src/**/*.js --test-coverage-exclude=.test-dist/src/cli.js --test-coverage-exclude=.test-dist/src/guard-cli.js --test-coverage-lines=80 --test-coverage-branches=75 --test-coverage-functions=80 \".test-dist/test/**/*.test.js\"",
     "prepack": "npm run build"
   },
   "devDependencies": {
