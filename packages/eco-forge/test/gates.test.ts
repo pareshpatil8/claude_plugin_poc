@@ -86,3 +86,23 @@ describe("applyPolicy", () => {
     assert.match(applyPolicy([crit], [{ ...valid, reason: "" }], config, now).invalidWaivers[0]?.problem ?? "", /no reason/);
   });
 });
+
+describe("elevate", () => {
+  it("raises FindSecBugs security rule-ids under-reported as medium", async () => {
+    const { elevate } = await import("../src/gates/elevate.js");
+    const base: Finding[] = [
+      { tool: "SpotBugs", ruleId: "COMMAND_INJECTION", severity: "medium", message: "m", file: "A.java", line: 1, fingerprint: "a" },
+      { tool: "SpotBugs", ruleId: "PREDICTABLE_RANDOM", severity: "medium", message: "m", file: "A.java", line: 2, fingerprint: "b" },
+      { tool: "SpotBugs", ruleId: "DM_DEFAULT_ENCODING", severity: "low", message: "m", file: "A.java", line: 3, fingerprint: "c" },
+    ];
+    const out = elevate(base);
+    assert.equal(out[0]?.severity, "critical"); // command injection
+    assert.equal(out[1]?.severity, "high");     // predictable RNG
+    assert.equal(out[2]?.severity, "low");      // untouched
+  });
+  it("never lowers a severity", async () => {
+    const { elevate } = await import("../src/gates/elevate.js");
+    const f: Finding[] = [{ tool: "t", ruleId: "SQL_INJECTION", severity: "critical", message: "m", file: "f", line: 1, fingerprint: "x" }];
+    assert.equal(elevate(f)[0]?.severity, "critical");
+  });
+});

@@ -1,0 +1,42 @@
+<!-- eco-forge Java SAST: paste this <profile> into your backend pom.xml <profiles> block (or let
+     `eco-forge add java-sast` merge it). CI runs `mvn -Pquality spotbugs:spotbugs pmd:check` and
+     feeds target/sarif/*.sarif to `eco-forge-gate`. Versions are pinned and >= 2 weeks old. -->
+<profile>
+  <id>quality</id>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-maven-plugin</artifactId>
+        <version>4.10.4.0</version>
+        <configuration>
+          <effort>Max</effort>
+          <threshold>Low</threshold>
+          <sarifOutput>true</sarifOutput>
+          <sarifOutputDirectory>${project.build.directory}/sarif</sarifOutputDirectory>
+          <sarifOutputFilename>spotbugs.sarif</sarifOutputFilename>
+          <plugins>
+            <plugin>
+              <groupId>com.h3xstream.findsecbugs</groupId>
+              <artifactId>findsecbugs-plugin</artifactId>
+              <version>1.14.0</version>
+            </plugin>
+          </plugins>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-pmd-plugin</artifactId>
+        <version>3.28.0</version>
+        <configuration>
+          <printFailingErrors>true</printFailingErrors>
+          <rulesets>
+            <ruleset>category/java/security.xml</ruleset>
+            <ruleset>category/java/errorprone.xml</ruleset>
+            <ruleset>category/java/bestpractices.xml</ruleset>
+          </rulesets>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</profile>

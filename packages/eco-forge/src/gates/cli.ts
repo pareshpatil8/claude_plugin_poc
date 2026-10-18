@@ -2,6 +2,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { applyPolicy, type GateConfig, type Waiver } from "./policy.js";
 import { fingerprints, parseSarif, reduce, type Severity } from "./sarif.js";
+import { elevate } from "./elevate.js";
 
 /**
  * eco-forge-gate <sarif...> [--baseline file] [--waivers file] [--block sev,sev] [--write-baseline file]
@@ -19,7 +20,7 @@ function main(): number {
     console.error("usage: eco-forge-gate <sarif...> [--baseline f] [--waivers f] [--block critical,high]");
     return 1;
   }
-  const findings = files.flatMap((f) => parseSarif(readFileSync(f, "utf8")));
+  const findings = elevate(files.flatMap((f) => parseSarif(readFileSync(f, "utf8"))));
   const baseline = new Set<string>(arg("--baseline") ? (JSON.parse(readFileSync(arg("--baseline") as string, "utf8")) as string[]) : []);
   const { newFindings, suppressedByBaseline, duplicates } = reduce(findings, baseline);
 

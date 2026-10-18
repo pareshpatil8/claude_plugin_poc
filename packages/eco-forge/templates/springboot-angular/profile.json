@@ -117,6 +117,10 @@
     {
       "dest": ".claude/commands/eco-export.md",
       "template": ".claude/commands/eco-export.md.tmpl"
+    },
+    {
+      "dest": "quality/maven/quality-profile.xml",
+      "template": "quality/maven/quality-profile.xml.tmpl"
     }
   ]
 }
