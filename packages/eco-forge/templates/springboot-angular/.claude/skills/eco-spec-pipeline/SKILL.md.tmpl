@@ -28,6 +28,11 @@ Write `spec.md`, `nfr.md`, `data-catalog.md`.
 - `nfr.md`: numeric NFR targets (from the nfr checklist), each tagged with the REQ-IDs it governs.
 - `data-catalog.md`: every data field with PII class, purpose, consent basis, retention (dpdp checklist).
 Gate: spec sign-off (human).
+Before sign-off, run `eco-forge-spec-lint docs/specs/<feature>` — the proactive QA gate. It fails
+(exit 2) on blocking requirement defects: ambiguous/non-measurable wording, NFRs without a number,
+duplicate REQ-IDs, data fields with no PII classification, missing error paths, and TBD
+placeholders. Resolve every blocking defect here; a requirement defect fixed now is far cheaper
+than one found by a code gate later. Treat the remaining (non-blocking) findings as review items.
 
 ### /eco:design <feature>
 Write `hld.md`, `lld.md`, `integration.md`, `api/openapi.yaml`, and ADRs under `docs/adr/`.
