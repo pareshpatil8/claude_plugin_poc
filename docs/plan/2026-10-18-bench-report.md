@@ -1,72 +1,86 @@
-# eco-forge token benchmark
+# eco-forge token benchmark — final report
 
 Headline metric: **median total tokens per passing task** — total = input + output + cache-creation
-(the fresh-billed work). A token saving that lowers the pass rate does not count.
+(the fresh-billed work). A token saving that lowers the pass rate does not count. All arms ran on the
+Claude subscription (served on Sonnet), reps=5, two tasks, via `eco-forge-bench`; every cell passed
+its deterministic check (100% pass rate throughout, so the comparison is purely about tokens).
 
-## Pooled by arm (reps=5, both tasks, subscription / Sonnet)
+## Pooled by arm (both tasks)
 
-| Arm | Mechanism | Pass rate | Median total tokens | vs vanilla | vs eco-full | Median turns |
-|-----|-----------|-----------|---------------------|-----------|-------------|--------------|
-| vanilla      | — (baseline)                | 100% | 17,689 | 0.0%   | −24.5% | 5 |
-| eco-full     | eco ecosystem, no token tool| 100% | 23,428 | +32.4% | 0.0%   | 7 |
-| eco-ctx      | context-mode (output compaction) | 100% | 29,889 | +69.0% | +27.6% | 9 |
-| eco-ponytail | ponytail (write minimum code)    | 100% | 24,554 | +38.8% | +4.8%  | 6 |
+| Arm | Mechanism | Median total tokens | vs vanilla | vs eco-full | Median turns |
+|-----|-----------|---------------------|-----------|-------------|--------------|
+| vanilla      | — (baseline)                      | 17,689 | 0.0%   | −24.5% | 5 |
+| eco-full     | eco ecosystem, no token tool      | 23,428 | +32.4% | 0.0%   | 7 |
+| eco-ponytail | ponytail — write minimum code     | 24,554 | +38.8% | **+4.8%**  | 6 |
+| eco-rtk      | rtk — Bash-output compaction      | 25,111 | +42.0% | **+7.2%**  | 9.5 |
+| eco-ctx      | context-mode — all tool output    | 29,889 | +69.0% | **+27.6%** | 9 |
 
-## Per task
+## Per task — the key nuance
 
-| Task | Arm | Pass | Median total tokens | vs eco-full | Median turns |
-|------|-----|------|---------------------|-------------|--------------|
-| `bugfix-ref-length` | vanilla | 5/5 | 16,485 | −29.5% | 4 |
-| `bugfix-ref-length` | eco-full | 5/5 | 23,392 | — | 7 |
-| `bugfix-ref-length` | eco-ctx | 5/5 | 29,813 | +27.4% | 10 |
-| `bugfix-ref-length` | eco-ponytail | 5/5 | 23,615 | +1.0% | 6 |
-| `feature-sla-policy` | vanilla | 5/5 | 18,852 | −19.7% | 7 |
-| `feature-sla-policy` | eco-full | 5/5 | 23,463 | — | 7 |
-| `feature-sla-policy` | eco-ctx | 5/5 | 29,965 | +27.7% | 7 |
-| `feature-sla-policy` | eco-ponytail | 5/5 | 25,011 | +6.6% | 6 |
+| Task | Arm | Median total tokens | vs eco-full | Median turns |
+|------|-----|---------------------|-------------|--------------|
+| `bugfix-ref-length` (tiny output) | eco-ponytail | 23,615 | +1.0%  | 6 |
+| `bugfix-ref-length`               | eco-rtk      | 25,997 | +11.1% | 15 |
+| `bugfix-ref-length`               | eco-ctx      | 29,813 | +27.4% | 10 |
+| `feature-sla-policy` (larger output) | eco-ponytail | 25,011 | +6.6%  | 6 |
+| `feature-sla-policy`              | eco-rtk      | 23,273 | **−0.8%** | 9 |
+| `feature-sla-policy`              | eco-ctx      | 29,965 | +27.7% | 7 |
 
 ---
 
-## What the four arms establish
+## What the full five-arm matrix establishes
 
-**Quality is equal: 100% pass on every arm, task and rep.** The comparison is purely about tokens.
+**1. Quality never moved: 100% pass on every arm, task and rep.** No tool helped or hurt correctness
+on these deterministic tasks; the whole story is tokens.
 
-**1. The eco ecosystem (`eco-full`) costs ~25–42% more than vanilla** — the governance tax (CLAUDE.md,
-rules, agents, the `/eco-*` workflow), mostly one-time cache-creation, shrinking with task size.
+**2. The eco ecosystem (`eco-full`) costs ~25–42% more than vanilla** — the governance tax (CLAUDE.md,
+rules, agents, `/eco-*` workflow), mostly one-time cache-creation, shrinking with task size. This is
+the baseline the token tools must beat.
 
-**2. The two Tier-2 token tools behave oppositely on this workload — mechanism matters:**
+**3. Mechanism decides the result, and task profile decides whether a tool pays off:**
 
-- **context-mode (output compaction): +27.6% vs eco-full — it HURTS here.** It saves tokens by keeping
-  *large* raw tool output out of context; our tasks produce tiny output (one file read, a short
-  Maven run), so its routing machinery (SessionStart injection + a PreToolUse routing-block that
-  denies piped Bash) is pure overhead and adds turns (7 → 9). It engaged correctly; it simply has
-  nothing to compress on this task shape.
-- **ponytail (write-minimum-code behaviour): +4.8% vs eco-full and FEWER turns (7 → 6) — near-neutral.**
-  Its "smallest complete change / reuse ladder" instruction makes the model more decisive and write
-  less, which roughly offsets the cost of injecting that instruction. On bigger features (more code
-  to minimise) it should cross into a net saving.
+- **ponytail (behaviour — "write the minimum necessary code"): +4.8% vs eco-full, fewer turns (7→6).**
+  Near-neutral on these small tasks because its "less code" effect roughly offsets the cost of
+  injecting the instruction. Aligned with eco-forge's actual code-writing loop; the only tool whose
+  turn count *dropped*.
+- **rtk (output compaction, Bash only): +7.2% pooled — but task-sensitive.** On the tiny bugfix it
+  churns (+11.1%, 15 turns); on the larger-output feature it is **−0.8%** — it has crossed to
+  break-even as soon as command output grows. This is direct in-data evidence that output-compression
+  tools invert from cost to saving with output volume.
+- **context-mode (compacts *all* tool output via MCP sandbox + routing block): +27.6% — worst here.**
+  Its machinery is heavier (SessionStart routing injection, a PreToolUse block that denies piped
+  Bash), and our tasks give it nothing large to compress, so it is pure overhead. It engaged
+  correctly; it is simply mis-applied to small-output coding.
 
-**3. The deciding variable is task profile, not the tool label.** An output-compression tool only
-pays off when tool output is large; a behaviour tool pays off when there is code volume to cut. On
-small, well-specified coding tasks neither saves tokens — which is why eco-forge must gate each tool
-by task profile rather than enabling them globally.
+**4. The decisive variable is task profile, not the tool.** Output-compression tools (context-mode,
+rtk) only pay off when tool output is large; the behaviour tool (ponytail) pays off when there is
+code volume to cut. On small, well-specified coding tasks none of them saves tokens — so eco-forge
+must gate each tool by task profile rather than enabling them globally.
 
 ## Recommended default policy (from this data)
-- **ponytail → candidate default.** Near-free on small tasks, aligned with eco-forge's code-writing
-  loop, and its gate pass rate held at 100%. Promote once a larger-feature task confirms a net saving
-  and the mutation score doesn't drop.
-- **context-mode → situational, OFF by default for coding.** Enable only for large-output / long
-  exploratory work (log/trace analysis, brownfield onboarding, web research), where its 98%
-  tool-output reduction applies. Defaulting it on would raise tokens on ordinary tasks.
-- **rtk → same class as context-mode;** expected to mirror it on these tasks (see arms status).
-- The baseline eco overhead itself is the next optimisation target (leaner always-on context).
+- **ponytail → candidate default ON for coding.** Near-free here, aligned with the workload, turns
+  dropped, pass rate held at 100%. Confirm a net saving on a large-feature task + unchanged mutation
+  score before locking it in.
+- **rtk → default ON only where commands are verbose** (build/test-heavy loops, log-producing tasks).
+  Already break-even on the feature task; expected net-positive on noisier command output. OFF for
+  trivial edits.
+- **context-mode → OFF by default for coding; situational ON** for large-output / long exploratory
+  work (log & trace analysis, brownfield onboarding, web research) where its 98% tool-output
+  reduction applies. Defaulting it on raises tokens on ordinary tasks.
+- The ~25–42% baseline eco overhead is itself the next optimisation target (leaner always-on context).
 
-## Arms status
-- `vanilla`, `eco-full`, `eco-ctx` (context-mode), `eco-ponytail` — **done** (reps=5, both tasks, 100% pass).
-- `eco-rtk` (shell-output compression, Rust binary) — integrating; completes the output-compression class.
-- `caveman` — skill only; acts on subagent→orchestrator reports, which single-agent tasks cannot
-  exercise. Install + document; measure once an orchestration task exists.
-- `headroom` — Bedrock compression proxy; runs only where the endpoint is reconfigurable → deferred
-  to the Bedrock environment, merged into this report later.
+## Tools evaluated vs. deferred
+| Tool | Class | Status |
+|------|-------|--------|
+| context-mode | output compaction (all tools) | **Measured** — +27.6% (situational) |
+| rtk | output compaction (Bash) | **Measured** — +7.2% pooled, break-even on larger output |
+| ponytail | behaviour (write-min-code) | **Measured** — +4.8%, fewer turns (best) |
+| caveman | behaviour, **subagent→orchestrator reports only** | **Not runnable here** — single-agent bench tasks never spawn a subagent, so caveman's compaction path is never hit. Needs a multi-agent orchestration task (delivery-planner fan-out) to measure. |
+| headroom | model-proxy / compression in front of the endpoint | **Not runnable here** — requires a reconfigurable endpoint; runs only in the Bedrock environment. Deferred and merged into this report later. |
 
-_Matrix cost so far: $5.03 total (40 cells, all passing)._
+## How to reproduce / extend
+All arms append to one resumable ledger (`.eco/bench/ledger.jsonl`); re-run `eco-forge-bench run`
+with the same `--state` to continue. Add the deferred arms (caveman on an orchestration task;
+headroom on Bedrock) into the same ledger and `eco-forge-bench report` merges them.
+
+_Total: 50 cells, 100% pass, **$6.50**._
