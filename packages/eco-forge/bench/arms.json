@@ -17,5 +17,12 @@
     "contextMode": true,
     "description": "eco-full plus the context-mode token tool (MCP sandbox + routing hooks that keep raw tool output out of context).",
     "claudeArgs": ["--permission-mode", "bypassPermissions"]
+  },
+  {
+    "id": "eco-ponytail",
+    "eco": true,
+    "ponytail": true,
+    "description": "eco-full plus the ponytail token tool (behaviour: write the minimum necessary code via SessionStart/UserPromptSubmit hooks + skill).",
+    "claudeArgs": ["--permission-mode", "bypassPermissions"]
   }
 ]

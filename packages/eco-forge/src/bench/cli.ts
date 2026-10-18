@@ -12,6 +12,7 @@ import { runSession } from "./session.js";
 import type { BenchArm, BenchTask, RunResult, RunUsage } from "./types.js";
 import { cleanupWorkspace, ensureDir, prepareWorkspace, type AddedFile, type TaskRegression } from "./workspace.js";
 import { contextModeEnv, wireContextMode } from "./context-mode.js";
+import { ponytailEnv, wirePonytail } from "./ponytail.js";
 
 interface TaskConfig extends BenchTask {
   readonly title?: string;
@@ -26,6 +27,8 @@ interface ArmConfig extends BenchArm {
   readonly eco: boolean;
   /** When true, the context-mode token tool is wired into this arm's workspace. */
   readonly contextMode?: boolean;
+  /** When true, the ponytail "write minimum code" tool is wired into this arm's workspace. */
+  readonly ponytail?: boolean;
 }
 
 const EMPTY: RunUsage = { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheCreationTokens: 0, costUsd: 0, durationMs: 0, numTurns: 0 };
@@ -44,6 +47,7 @@ run options:
   --max-runs <n>           Safety stop after N runs this session
   --eco-cli <path>         Path to eco-forge dist/cli.js (default: alongside this CLI)
   --cm-root <path>         Install dir of context-mode (required for a context-mode arm)
+  --ponytail-root <path>   Clone dir of ponytail (required for a ponytail arm)
   --run-timeout <sec>      Per-run claude timeout in seconds (default 900)
 
 report options:
@@ -104,6 +108,7 @@ function doRun(args: readonly string[]): number {
       "max-runs": { type: "string" },
       "eco-cli": { type: "string" },
       "cm-root": { type: "string" },
+      "ponytail-root": { type: "string" },
       "run-timeout": { type: "string" },
       help: { type: "boolean", short: "h", default: false },
     },
@@ -124,6 +129,7 @@ function doRun(args: readonly string[]): number {
     ? path.resolve(values["eco-cli"])
     : path.resolve(fileURLToPath(new URL("../cli.js", import.meta.url)));
   const cmRoot = values["cm-root"] ? path.resolve(values["cm-root"]) : undefined;
+  const ponytailRoot = values["ponytail-root"] ? path.resolve(values["ponytail-root"]) : undefined;
 
   const tasks = loadJson<TaskConfig[]>(values.tasks);
   const arms = loadJson<ArmConfig[]>(values.arms);
@@ -164,6 +170,14 @@ function doRun(args: readonly string[]): number {
         wireContextMode(ws, cmCfg);
         claudeArgs.push("--mcp-config", path.join(ws, ".mcp.json"));
         spawnEnv = { ...process.env, ...contextModeEnv(cmCfg) };
+      }
+      if (armCfg.ponytail) {
+        if (!ponytailRoot) {
+          throw new Error("--ponytail-root is required for a ponytail arm");
+        }
+        const pcfg = { root: ponytailRoot };
+        wirePonytail(ws, pcfg);
+        spawnEnv = { ...spawnEnv, ...ponytailEnv(pcfg) };
       }
       const invoked = spawnSync("claude", ["-p", prompt, "--output-format", "json", ...claudeArgs], {
         cwd: ws,
