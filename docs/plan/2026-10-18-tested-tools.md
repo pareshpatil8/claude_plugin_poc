@@ -22,6 +22,7 @@ Verdict key: ✅ satisfactory (adopt) · 🟡 satisfactory but conditional (gate
 | **PMD** | ✅ | Runs as a Maven plugin on the golden backend |
 | **Trivy** 0.60 (SCA + our reachability triage) | ✅ | Log4Shell fixture blocked; unused transitive dep correctly waived as unreachable |
 | **gitleaks** 8.28 | ✅ | Secret scan wired in CI, runs clean |
+| **Cloudflare security-audit skill** (MIT) | ✅ | **Piloted: 5/5 catch rate, 0 false positives, $0.22** on the planted-defect repo (SQLi, PII-log, permitAll, 2× XSS). Runs on your own model. Adopt as an advisory LLM reviewer alongside the deterministic gates |
 
 ## Build / test / runtime infrastructure (proven here)
 | Tool | Verdict | Evidence |
