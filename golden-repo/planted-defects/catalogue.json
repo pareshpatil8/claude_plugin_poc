@@ -1,0 +1,61 @@
+{
+  "description": "Seeded defects to measure eco-forge gate catch rate. Each defect names the gate that should catch it.",
+  "defects": [
+    {
+      "id": "DEFECT-SQLI-1",
+      "category": "injection",
+      "owasp": "A03",
+      "gate": "semgrep:eco-sql-string-concatenation",
+      "file": "java/Defects.java"
+    },
+    {
+      "id": "DEFECT-PII-1",
+      "category": "dpdp-logging",
+      "gate": "semgrep:eco-pii-in-logs",
+      "file": "java/Defects.java"
+    },
+    {
+      "id": "DEFECT-PERMITALL-1",
+      "category": "broken-access-control",
+      "owasp": "A01",
+      "gate": "semgrep:eco-disabled-method-security",
+      "file": "java/SecurityConfigBad.java"
+    },
+    {
+      "id": "DEFECT-XSS-1",
+      "category": "xss",
+      "owasp": "A03",
+      "gate": "semgrep:eco-angular-bypass-security-trust",
+      "file": "angular/defects.ts"
+    },
+    {
+      "id": "DEFECT-XSS-2",
+      "category": "xss",
+      "owasp": "A03",
+      "gate": "semgrep:eco-angular-innerhtml-binding",
+      "file": "angular/defects.component.html"
+    },
+    {
+      "id": "DEFECT-SCA-1",
+      "category": "vulnerable-dependency",
+      "gate": "sca:trivy",
+      "file": "vulnerable-pom.xml",
+      "measuredSeparately": true
+    },
+    {
+      "id": "DEFECT-CMDI-1",
+      "category": "command-injection",
+      "owasp": "A03",
+      "gate": "spotbugs:COMMAND_INJECTION",
+      "measuredSeparately": true,
+      "note": "proven in M2-06 Java SAST run"
+    },
+    {
+      "id": "DEFECT-RNG-1",
+      "category": "weak-random",
+      "gate": "spotbugs:PREDICTABLE_RANDOM",
+      "measuredSeparately": true,
+      "note": "proven in M2-06 Java SAST run"
+    }
+  ]
+}

@@ -15,7 +15,7 @@ rules:
           - pattern: $S.bypassSecurityTrustResourceUrl(...)
 
   - id: eco-angular-innerhtml-binding
-    languages: [typescript]
+    languages: [generic]
     severity: WARNING
     message: "Binding to [innerHTML] can introduce XSS; prefer text interpolation or a sanitising pipe."
     paths:
