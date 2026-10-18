@@ -11,8 +11,8 @@ becoming a default. "Unverified" means not confirmable from public docs yet; con
 | 1 | **Cloudflare security-audit skill** | Agent Skill: multi-phase (recon→hunt→validate→report→verify) code security audit via parallel sub-agents; emits `findings.json` + `REPORT.md` | MIT (confirm repo LICENSE) | ✅ Skill-only, runs on **your** Bedrock model; no Cloudflare cloud calls | **ADOPT (pilot)** |
 | 2 | **cognee** | Self-hosted AI memory / knowledge-graph (entities+relations, vector+graph store; MCP server) | Apache-2.0 | 🟡 Can run local extraction/embeddings; Bedrock provider + telemetry-disable **unverified** | **CHALLENGER** |
 | 3 | **DeerFlow** (ByteDance) | LangGraph multi-agent deep-research "SuperAgent" harness; self-hostable (Docker+Helm) | MIT | 🟡 OpenAI-compatible; Bedrock unverified. ByteDance provenance = procurement/trust friction | **LATER** |
-| 4 | **qm** | Could not identify an AI/security tool named "qm". Closest: **Qodo** (SaaS, residency risk) / **Qodo-Merge** (self-hostable PR tool) | — | ❓ ambiguous | **EXCLUDE until disambiguated** (send a repo URL) |
-| 5 | **KSoR** | `panaversity/ksor` = "Knowledge System of Record" — governed knowledge-platform SDK (NOT a pentest tool) | Apache-2.0 (confirm) | 🟡 unverified; niche/early | **LATER/EXCLUDE** — overlaps cognee; confirm this is the intended KSoR |
+| 4 | **qm** (`yc-software/qm`) | **Identified.** A *multiplayer agent harness for work* — Slack + web, run in your own cloud with your own models/keys; per-person/room scoped memory, files, keychain, permissions, crons, web apps, sandboxes. Harness-agnostic (Pi + Claude Code drive the same core). NOT a coding-quality or security tool — a team **delivery/collaboration platform**. | MIT | ✅ Self-hostable, your own models (Bedrock via "your own models"); Slack + keychain need a security review | **LATER (different layer)** — evaluate as a team-deployment substrate, not a token/gate tool |
+| 5 | **KSoR** (`panaversity/ksor`) | **Confirmed.** "Knowledge System of Record" — governed knowledge-platform SDK (NOT a pentest tool) | Apache-2.0 | 🟡 niche/early | **LATER** — overlaps cognee; prefer cognee as the memory candidate |
 | 6 | **Strix** | Autonomous AI pentest agent: Docker-local team of agents that chain offensive tools + attempt real PoC exploitation | Apache-2.0 | ✅ Docker-local, LiteLLM→**Bedrock** supported; telemetry switch unverified | **CHALLENGER (gated)** |
 
 ## Notes that change the security posture
@@ -39,8 +39,24 @@ becoming a default. "Unverified" means not confirmable from public docs yet; con
 - **cognee / KSoR** → retrieval eval: ingest repo + `docs/memory/decisions.md`, then Q&A cases whose
   graders check the correct fact/file is returned; Axis-3 benchmark arm = answer-with-memory vs cold.
 - Before ANY production adoption, confirm the open items: cognee telemetry-disable env var + Bedrock
-  provider; DeerFlow Bedrock; Strix telemetry switch + enforced scope; the literal identity of "qm";
-  that `panaversity/ksor` is the intended KSoR.
+  provider; DeerFlow Bedrock; Strix telemetry switch + enforced scope; qm's Slack/keychain security
+  model.
 
-_Research sources recorded in the session; GitHub repos: cloudflare/security-audit-skill,
-topoteretes/cognee, bytedance/deer-flow, usestrix/strix, panaversity/ksor._
+## Final conclusion — all six (identities resolved)
+| Tool | GitHub | Category | License | Verdict |
+|------|--------|----------|---------|---------|
+| Cloudflare security-audit skill | github.com/cloudflare/security-audit-skill | Security (LLM code audit, skill) | MIT | **ADOPT (pilot)** — runs on your Bedrock; add as an extra reviewer, not a gate |
+| Strix | github.com/usestrix/strix | Security (autonomous pentest) | Apache-2.0 | **CHALLENGER (gated)** — authorized pre-prod targets only; pin scope + Bedrock; confirm no telemetry |
+| cognee | github.com/topoteretes/cognee | Memory / knowledge-graph | Apache-2.0 | **CHALLENGER** — verify telemetry-off + Bedrock before DPDP sign-off |
+| qm | github.com/yc-software/qm | Team agent-delivery platform (Slack/web) | MIT | **LATER** — different layer (how the team runs agents); evaluate as deployment substrate, security-review Slack/keychain |
+| KSoR | github.com/panaversity/ksor | Governed knowledge SDK | Apache-2.0 | **LATER** — overlaps cognee; cognee preferred |
+| DeerFlow | github.com/bytedance/deer-flow | Multi-agent research harness | MIT | **LATER** — overlaps our orchestration; ByteDance trust/procurement friction |
+
+**Net for eco-forge now:** one adopt-pilot (Cloudflare audit skill) and two security/memory challengers
+(Strix, cognee) enter the evaluation pipeline via the 3-axis skill-evaluation method. qm, KSoR and
+DeerFlow are parked as LATER — all three are MIT/Apache-2.0 and self-hostable (so not rejected), but
+none fills a current gap: qm is a team-deployment layer (orthogonal to the config package), KSoR
+overlaps cognee, and DeerFlow overlaps eco-forge's own delivery-planner orchestration.
+
+_GitHub repos: cloudflare/security-audit-skill, usestrix/strix, topoteretes/cognee, yc-software/qm,
+panaversity/ksor, bytedance/deer-flow._
