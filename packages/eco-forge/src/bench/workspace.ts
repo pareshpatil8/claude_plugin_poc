@@ -23,11 +23,19 @@ export interface TaskRegression {
   readonly replace: string;
 }
 
+/** A new file written into the workspace (e.g. a pre-written failing test for a test-first feature). */
+export interface AddedFile {
+  readonly path: string;
+  readonly content: string;
+}
+
 export interface PrepareInput {
   /** Absolute path to the pristine source project (e.g. the golden repo backend). */
   readonly sourceDir: string;
   readonly arm: ArmWorkspaceSpec;
   readonly regression?: TaskRegression;
+  /** Files to add after copying (created fresh; parent dirs made as needed). */
+  readonly addFiles?: readonly AddedFile[];
   /** Directories under sourceDir to skip when copying (regenerated build output, VCS). */
   readonly exclude?: readonly string[];
   /** Absolute path to the eco-forge CLI entry (dist/cli.js); required when arm.eco is true. */
@@ -65,6 +73,12 @@ export function prepareWorkspace(input: PrepareInput): string {
       rmSync(base, { recursive: true, force: true });
       throw new Error(`eco-forge init failed (exit ${init.status}): ${init.stderr || init.stdout}`);
     }
+  }
+
+  for (const added of input.addFiles ?? []) {
+    const dest = path.join(base, added.path);
+    mkdirSync(path.dirname(dest), { recursive: true });
+    writeFileSync(dest, added.content, "utf8");
   }
 
   if (input.regression) {

@@ -87,6 +87,25 @@ describe("prepareWorkspace", () => {
     }
   });
 
+  it("writes addFiles (creating parent dirs) into the workspace", () => {
+    const src = mkdtempSync(path.join(tmpdir(), "eco-src-"));
+    try {
+      writeFileSync(path.join(src, "pom.xml"), "<project/>", "utf8");
+      const ws = prepareWorkspace({
+        sourceDir: src,
+        arm: { id: "vanilla", eco: false },
+        addFiles: [{ path: "src/test/java/FooTest.java", content: "class FooTest {}" }],
+      });
+      try {
+        assert.equal(readFileSync(path.join(ws, "src/test/java/FooTest.java"), "utf8"), "class FooTest {}");
+      } finally {
+        cleanupWorkspace(ws);
+      }
+    } finally {
+      rmSync(src, { recursive: true, force: true });
+    }
+  });
+
   it("throws when the regression target is absent or ambiguous", () => {
     const src = mkdtempSync(path.join(tmpdir(), "eco-src-"));
     try {

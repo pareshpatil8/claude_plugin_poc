@@ -8,8 +8,7 @@
   {
     "id": "eco-full",
     "eco": true,
-    "promptPrefix": "/eco-bugfix ",
-    "description": "Full eco ecosystem installed (CLAUDE.md, path rules, agents, commands, gates); task routed through the /eco-bugfix workflow.",
+    "description": "Full eco ecosystem installed (CLAUDE.md, path rules, agents, commands, gates); task routed through its eco slash command.",
     "claudeArgs": ["--permission-mode", "bypassPermissions"]
   }
 ]

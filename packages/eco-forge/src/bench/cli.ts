@@ -10,18 +10,19 @@ import { formatReport, summarise } from "./metrics.js";
 import { expandPlan } from "./plan.js";
 import { runSession } from "./session.js";
 import type { BenchArm, BenchTask, RunResult, RunUsage } from "./types.js";
-import { cleanupWorkspace, ensureDir, prepareWorkspace, type TaskRegression } from "./workspace.js";
+import { cleanupWorkspace, ensureDir, prepareWorkspace, type AddedFile, type TaskRegression } from "./workspace.js";
 
 interface TaskConfig extends BenchTask {
   readonly title?: string;
   readonly kind?: string;
   readonly regression?: TaskRegression;
+  readonly addFiles?: readonly AddedFile[];
+  /** eco-arm slash command this task routes through (e.g. "eco-bugfix", "eco-dev"). */
+  readonly ecoCommand?: string;
 }
 
 interface ArmConfig extends BenchArm {
   readonly eco: boolean;
-  /** Prepended to the task prompt (e.g. "/eco-bugfix " to route through the eco workflow). */
-  readonly promptPrefix?: string;
 }
 
 const EMPTY: RunUsage = { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheCreationTokens: 0, costUsd: 0, durationMs: 0, numTurns: 0 };
@@ -142,9 +143,11 @@ function doRun(args: readonly string[]): number {
         sourceDir,
         arm: { id: armCfg.id, eco: armCfg.eco },
         ...(taskCfg.regression ? { regression: taskCfg.regression } : {}),
+        ...(taskCfg.addFiles ? { addFiles: taskCfg.addFiles } : {}),
         ...(armCfg.eco ? { ecoCliPath } : {}),
       });
-      const prompt = `${armCfg.promptPrefix ?? ""}${task.prompt}`;
+      // The eco arm routes the task through its slash command; vanilla gets the raw prompt.
+      const prompt = armCfg.eco && taskCfg.ecoCommand ? `/${taskCfg.ecoCommand} ${task.prompt}` : task.prompt;
       const claudeArgs = [...(armCfg.claudeArgs ?? [])];
       const invoked = spawnSync("claude", ["-p", prompt, "--output-format", "json", ...claudeArgs], {
         cwd: ws,
