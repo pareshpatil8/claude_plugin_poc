@@ -1,0 +1,14 @@
+[
+  {
+    "id": "bugfix-ref-length",
+    "title": "Service-request reference regression",
+    "kind": "bugfix",
+    "prompt": "The backend unit test suite is failing. A regression was introduced somewhere in the Java source under src/main/java. Diagnose the root cause, fix it in the source only (do not edit, add, delete or weaken any test), and keep the fix minimal. The task is complete only when `./mvnw -o -q -Dtest=ServiceRequestServiceTest test` exits 0.",
+    "check": "./mvnw -o -q -Dtest=ServiceRequestServiceTest test",
+    "regression": {
+      "file": "src/main/java/com/yourorg/golden/request/ServiceRequestService.java",
+      "find": "new byte[8]",
+      "replace": "new byte[6]"
+    }
+  }
+]

@@ -14,7 +14,17 @@ export interface SessionCaps {
 
 export type RunOne = (task: BenchTask, arm: BenchArm, rep: number) => RunResult;
 
-export type StopReason = "complete" | "overall-budget" | "session-budget" | "max-runs";
+export type StopReason = "complete" | "overall-budget" | "session-budget" | "max-runs" | "aborted";
+
+export interface SessionHooks {
+  readonly onProgress?: (cell: Cell, result: RunResult, totalSpent: number) => void;
+  /**
+   * Returns true when a run's result is a transient environmental failure (e.g. the subscription
+   * usage limit was hit) that must NOT be recorded — the cell stays pending so the next session
+   * retries it after the limit resets. The run that triggered the abort is discarded.
+   */
+  readonly shouldAbort?: (result: RunResult) => boolean;
+}
 
 export interface SessionOutcome {
   readonly ran: number;
@@ -35,8 +45,10 @@ export function runSession(
   ledger: Ledger,
   runOne: RunOne,
   caps: SessionCaps,
-  onProgress?: (cell: Cell, result: RunResult, totalSpent: number) => void,
+  hooksOrProgress?: SessionHooks | ((cell: Cell, result: RunResult, totalSpent: number) => void),
 ): SessionOutcome {
+  const hooks: SessionHooks =
+    typeof hooksOrProgress === "function" ? { onProgress: hooksOrProgress } : (hooksOrProgress ?? {});
   const taskById = new Map(plan.tasks.map((t) => [t.id, t]));
   const armById = new Map(plan.arms.map((a) => [a.id, a]));
 
@@ -71,10 +83,15 @@ export function runSession(
       continue;
     }
     const result = runOne(task, arm, cell.rep);
-    const entry = ledger.append(cell.key, result);
+    // A transient environmental failure (e.g. usage limit) is discarded, not recorded, so the
+    // next session retries this exact cell once the limit resets.
+    if (hooks.shouldAbort?.(result)) {
+      stop = "aborted";
+      break;
+    }
+    ledger.append(cell.key, result);
     ran++;
-    onProgress?.(cell, result, ledger.spentUsd());
-    void entry;
+    hooks.onProgress?.(cell, result, ledger.spentUsd());
   }
 
   const totalSpent = ledger.spentUsd();

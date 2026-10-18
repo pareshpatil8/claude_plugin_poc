@@ -1,0 +1,15 @@
+[
+  {
+    "id": "vanilla",
+    "eco": false,
+    "description": "Baseline: plain Claude Code with no eco ecosystem installed; the raw task prompt.",
+    "claudeArgs": ["--permission-mode", "bypassPermissions"]
+  },
+  {
+    "id": "eco-full",
+    "eco": true,
+    "promptPrefix": "/eco-bugfix ",
+    "description": "Full eco ecosystem installed (CLAUDE.md, path rules, agents, commands, gates); task routed through the /eco-bugfix workflow.",
+    "claudeArgs": ["--permission-mode", "bypassPermissions"]
+  }
+]
