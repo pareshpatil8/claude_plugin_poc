@@ -78,6 +78,37 @@ must gate each tool by task profile rather than enabling them globally.
 | caveman | behaviour, **subagent→orchestrator reports only** | **Not runnable here** — single-agent bench tasks never spawn a subagent, so caveman's compaction path is never hit. Needs a multi-agent orchestration task (delivery-planner fan-out) to measure. |
 | headroom | model-proxy / compression in front of the endpoint | **Not runnable here** — requires a reconfigurable endpoint; runs only in the Bedrock environment. Deferred and merged into this report later. |
 
+## Orchestration sub-matrix — caveman (subagent→orchestrator compaction)
+
+A separate task (`orch-sla-feature`) routes through the **delivery-planner**, which fans out to real
+subagents (confirmed: 4 spawned — delivery-planner, backend-dev, test-designer, code-reviewer). This
+is the only task shape that exercises caveman, whose job is to make each subagent's hand-back report
+terse. reps=3, 100% pass.
+
+> **Metric note:** for multi-agent runs the top-level `claude -p` usage counters do **not** include
+> the subagents' tokens (those roll up into `total_cost_usd` only). So "total tokens" under-counts
+> the real work here, and **cost (USD) is the honest metric** for this sub-matrix.
+
+| Arm | Pass | Median cost (USD) | vs eco-orch | Cheaper in |
+|-----|------|-------------------|-------------|------------|
+| eco-orch          | 3/3 | 0.4346 | —      | — |
+| eco-orch-caveman  | 3/3 | **0.4054** | **−6.7%** | **3 of 3 paired reps** |
+
+**caveman reduces orchestration cost ~7%, consistently across all three paired reps, at 100% pass** —
+the terse subagent reports cut billed tokens across the agent tree. (The parent-usage "total tokens"
+metric actually *rises* +10.9% here, because the voice directive injected into every agent file adds
+cache-creation tokens the parent *can* see while the subagent savings it *cannot* see — which is
+exactly why cost is the right metric for orchestration.) Signal is directionally clear but small-n
+(3 reps, cost variance $0.41–0.53); treat as "promising, confirm with more reps".
+
+**This completes the thesis: every token tool helps only in its own regime.** ponytail on code
+volume, rtk/context-mode on large command/tool output, **caveman on multi-agent orchestration**.
+None is a universal default; each is gated to the task profile it serves.
+
+### Deferred (environment-bound, not a tool failure)
+- **headroom** — model-proxy compression; needs the reconfigurable Bedrock endpoint. Runs in the
+  Bedrock environment and merges into this ledger later.
+
 ## How to reproduce / extend
 All arms append to one resumable ledger (`.eco/bench/ledger.jsonl`); re-run `eco-forge-bench run`
 with the same `--state` to continue. Add the deferred arms (caveman on an orchestration task;

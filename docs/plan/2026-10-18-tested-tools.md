@@ -12,6 +12,7 @@ Verdict key: ✅ satisfactory (adopt) · 🟡 satisfactory but conditional (gate
 | **ponytail** (MIT) | ✅ | +4.8% tokens vs eco-full and **fewer turns** (7→6); 100% pass | Default **ON** for coding |
 | **rtk** 0.49.0 (Apache-2.0 CLI) | 🟡 | +7.2% pooled but **−0.8% on the larger-output task** — pays off as command output grows | ON for build/test-heavy loops; OFF for trivial edits |
 | **context-mode** 1.0.169 (Elastic 2.0) | 🟡 | +27.6% on small-output coding (pure overhead); engages correctly | OFF for coding; ON only for large-output/exploratory work |
+| **caveman** (JuliusBrussee, voice skills) | 🟡 | **−6.7% orchestration cost, 3/3 paired reps, 100% pass** on a delivery-planner fan-out; no effect on single-agent tasks. `caveman-compress` EXCLUDED (ships file text off-machine, DPDP) | ON for **multi-agent orchestration** only |
 
 ## Security & quality scanners (verified on the golden repo + planted defects)
 | Tool | Verdict | Evidence |
@@ -46,6 +47,5 @@ runner — all covered by the 181-test suite.
 ## Not yet verifiable in this environment (deferred, not rejected)
 | Tool | Needs |
 |------|-------|
-| **caveman** (subagent→orchestrator report compaction) | A multi-agent orchestration task to exercise the path (building next) |
 | **headroom** (model-proxy compression) | The reconfigurable Bedrock endpoint |
 | OWASP ZAP (DAST), SonarQube, Dependency-Check, Dependency-Track, DefectDojo | Your real servers / large NVD download — ship as config + acceptance kit |
