@@ -18,3 +18,11 @@ when the activity closed. Nothing persistent is left in the repository or a ship
 
 Nothing light-installed here is part of `@yourorg/eco-forge`. The package ships only config
 (Semgrep rule YAML, CI job definitions) that points at your Nexus-mirrored tools in production.
+
+## Session 3 additions (removed)
+| Tool | Installed as | Used for | Status |
+|---|---|---|---|
+| Trivy 0.60.0 | container image (public.ecr.aws/aquasecurity/trivy) + vuln-DB cache | Real SCA scan of golden backend + a log4shell fixture to prove the reachability chain | **Removed**: `docker rmi` + deleted the DB cache and fixtures |
+
+Trivy reached its vuln DB through the agent proxy by mounting /root/.ccr/ca-bundle.crt and passing
+HTTPS_PROXY/SSL_CERT_FILE — the same thing your Nexus ORAS mirror handles in production.

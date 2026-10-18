@@ -1,0 +1,17 @@
+# eco-forge Trivy config. CI runs:
+#   trivy fs --scanners vuln --format json --output trivy-fs.json .
+#   trivy image --scanners vuln --format json --output trivy-image.json <image>
+# then: eco-forge-sca --trivy trivy-fs.json --npm npm-audit.json --src . --block critical,high
+# DB is mirrored in Nexus (ORAS) for the proxy/air-gapped setup; see docs.
+severity:
+  - HIGH
+  - CRITICAL
+  - MEDIUM
+vulnerability:
+  type:
+    - os        # JDK/UBI base image packages
+    - library   # Java (jar/pom) and npm
+scan:
+  scanners:
+    - vuln
+exit-code: 0   # eco-forge-sca owns the pass/fail decision after reachability triage

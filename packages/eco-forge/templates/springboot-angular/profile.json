@@ -121,6 +121,18 @@
     {
       "dest": "quality/maven/quality-profile.xml",
       "template": "quality/maven/quality-profile.xml.tmpl"
+    },
+    {
+      "dest": ".claude/skills/eco-security-reviewer/SKILL.md",
+      "template": ".claude/skills/eco-security-reviewer/SKILL.md.tmpl"
+    },
+    {
+      "dest": ".claude/commands/eco-sca.md",
+      "template": ".claude/commands/eco-sca.md.tmpl"
+    },
+    {
+      "dest": "quality/trivy/trivy.yaml",
+      "template": "quality/trivy/trivy.yaml.tmpl"
     }
   ]
 }

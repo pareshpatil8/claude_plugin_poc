@@ -1,0 +1,6 @@
+---
+description: Run SCA + reachability triage for the project's dependencies and images
+---
+Invoke the `eco-security-reviewer` skill. Run the available SCA scanners (trivy fs for Java+npm,
+trivy image for the built images, npm audit for the frontend), then `eco-forge-sca` to triage by
+reachability, deepen the check for block-escalate/waive findings per the skill, and report.
