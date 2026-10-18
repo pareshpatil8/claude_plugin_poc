@@ -24,5 +24,12 @@
     "ponytail": true,
     "description": "eco-full plus the ponytail token tool (behaviour: write the minimum necessary code via SessionStart/UserPromptSubmit hooks + skill).",
     "claudeArgs": ["--permission-mode", "bypassPermissions"]
+  },
+  {
+    "id": "eco-rtk",
+    "eco": true,
+    "rtk": true,
+    "description": "eco-full plus the rtk token tool (PreToolUse Bash hook that filters/compresses command output before it reaches the model).",
+    "claudeArgs": ["--permission-mode", "bypassPermissions"]
   }
 ]

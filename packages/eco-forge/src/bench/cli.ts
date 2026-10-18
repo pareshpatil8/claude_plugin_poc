@@ -13,6 +13,7 @@ import type { BenchArm, BenchTask, RunResult, RunUsage } from "./types.js";
 import { cleanupWorkspace, ensureDir, prepareWorkspace, type AddedFile, type TaskRegression } from "./workspace.js";
 import { contextModeEnv, wireContextMode } from "./context-mode.js";
 import { ponytailEnv, wirePonytail } from "./ponytail.js";
+import { wireRtk } from "./rtk.js";
 
 interface TaskConfig extends BenchTask {
   readonly title?: string;
@@ -29,6 +30,8 @@ interface ArmConfig extends BenchArm {
   readonly contextMode?: boolean;
   /** When true, the ponytail "write minimum code" tool is wired into this arm's workspace. */
   readonly ponytail?: boolean;
+  /** When true, the rtk shell-output compression tool is wired into this arm's workspace. */
+  readonly rtk?: boolean;
 }
 
 const EMPTY: RunUsage = { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheCreationTokens: 0, costUsd: 0, durationMs: 0, numTurns: 0 };
@@ -48,6 +51,8 @@ run options:
   --eco-cli <path>         Path to eco-forge dist/cli.js (default: alongside this CLI)
   --cm-root <path>         Install dir of context-mode (required for a context-mode arm)
   --ponytail-root <path>   Clone dir of ponytail (required for a ponytail arm)
+  --rtk-bin <path>         Built rtk binary (required for an rtk arm)
+  --rtk-assets <path>      rtk repo dir with .rtk/filters.toml + awareness (required for an rtk arm)
   --run-timeout <sec>      Per-run claude timeout in seconds (default 900)
 
 report options:
@@ -109,6 +114,8 @@ function doRun(args: readonly string[]): number {
       "eco-cli": { type: "string" },
       "cm-root": { type: "string" },
       "ponytail-root": { type: "string" },
+      "rtk-bin": { type: "string" },
+      "rtk-assets": { type: "string" },
       "run-timeout": { type: "string" },
       help: { type: "boolean", short: "h", default: false },
     },
@@ -130,6 +137,8 @@ function doRun(args: readonly string[]): number {
     : path.resolve(fileURLToPath(new URL("../cli.js", import.meta.url)));
   const cmRoot = values["cm-root"] ? path.resolve(values["cm-root"]) : undefined;
   const ponytailRoot = values["ponytail-root"] ? path.resolve(values["ponytail-root"]) : undefined;
+  const rtkBin = values["rtk-bin"] ? path.resolve(values["rtk-bin"]) : undefined;
+  const rtkAssets = values["rtk-assets"] ? path.resolve(values["rtk-assets"]) : undefined;
 
   const tasks = loadJson<TaskConfig[]>(values.tasks);
   const arms = loadJson<ArmConfig[]>(values.arms);
@@ -178,6 +187,12 @@ function doRun(args: readonly string[]): number {
         const pcfg = { root: ponytailRoot };
         wirePonytail(ws, pcfg);
         spawnEnv = { ...spawnEnv, ...ponytailEnv(pcfg) };
+      }
+      if (armCfg.rtk) {
+        if (!rtkBin || !rtkAssets) {
+          throw new Error("--rtk-bin and --rtk-assets are required for an rtk arm");
+        }
+        wireRtk(ws, { bin: rtkBin, assetsRoot: rtkAssets });
       }
       const invoked = spawnSync("claude", ["-p", prompt, "--output-format", "json", ...claudeArgs], {
         cwd: ws,
