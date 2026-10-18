@@ -137,6 +137,42 @@
     {
       "dest": "quality/k6/service.k6.js",
       "template": "quality/k6/service.k6.js.tmpl"
+    },
+    {
+      "dest": ".claude/agents/backend-dev.md",
+      "template": ".claude/agents/backend-dev.md.tmpl"
+    },
+    {
+      "dest": ".claude/agents/frontend-dev.md",
+      "template": ".claude/agents/frontend-dev.md.tmpl"
+    },
+    {
+      "dest": ".claude/agents/test-designer.md",
+      "template": ".claude/agents/test-designer.md.tmpl"
+    },
+    {
+      "dest": ".claude/agents/code-reviewer.md",
+      "template": ".claude/agents/code-reviewer.md.tmpl"
+    },
+    {
+      "dest": ".claude/rules/backend.md",
+      "template": ".claude/rules/backend.md.tmpl"
+    },
+    {
+      "dest": ".claude/rules/frontend.md",
+      "template": ".claude/rules/frontend.md.tmpl"
+    },
+    {
+      "dest": ".claude/skills/eco-dev/SKILL.md",
+      "template": ".claude/skills/eco-dev/SKILL.md.tmpl"
+    },
+    {
+      "dest": ".claude/commands/eco-dev.md",
+      "template": ".claude/commands/eco-dev.md.tmpl"
+    },
+    {
+      "dest": ".claude/commands/eco-bugfix.md",
+      "template": ".claude/commands/eco-bugfix.md.tmpl"
     }
   ]
 }

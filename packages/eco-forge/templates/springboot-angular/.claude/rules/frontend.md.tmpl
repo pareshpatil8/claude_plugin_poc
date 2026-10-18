@@ -1,0 +1,9 @@
+---
+description: Angular frontend standards
+globs: ["**/frontend/**/*.ts", "**/frontend/**/*.html"]
+---
+- Standalone components, signals, strict TypeScript; reactive forms with full validation.
+- Accessible by construction: labelled controls, linked error messages, visible focus, focus moved to first error, live regions for status/alerts; pass axe with no serious/critical violations.
+- Never use `bypassSecurityTrust*` or `[innerHTML]` without a reviewed waiver.
+- Use design-system tokens, not hard-coded colours/spacing.
+- Responses carry no personal data the UI does not need.

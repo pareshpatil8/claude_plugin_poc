@@ -1,0 +1,11 @@
+---
+description: Spring Boot 4 / Java 21 backend standards
+globs: ["**/src/main/java/**/*.java", "**/src/test/java/**/*.java"]
+---
+- Constructor injection only; never field injection.
+- Validate every external input with Bean Validation; reject invalid input with RFC 9457 ProblemDetail.
+- Deny by default in security config; enforce object-level authorization (prevent IDOR).
+- Never log, return, or publish personal data (names, email, phone, Aadhaar, PAN). Mask or omit.
+- Kafka consumers are idempotent (idempotency key) with a DLQ; publish domain events after commit.
+- No `catch (Exception)` that swallows; no secrets in code/logs/config (use Vault).
+- Write the test before the code; every test comments its REQ-ID.

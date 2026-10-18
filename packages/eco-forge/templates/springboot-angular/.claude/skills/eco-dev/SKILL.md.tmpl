@@ -1,0 +1,28 @@
+---
+name: eco-dev
+description: Implement a planned work item (or fix a bug) end to end — branch, test-first code via the right role agent, run the gates, open an MR. Use for /eco:dev and /eco:bugfix.
+---
+
+# Develop a work item
+
+One source of truth: the spec and its REQ-IDs drive the code and the tests.
+
+## /eco:dev <issue>
+1. Read the GitLab issue (or `docs/specs/<feature>/tasks.md` item) and its spec slice. Confirm the REQ-IDs and acceptance criteria. If anything is ambiguous, stop and run `/eco:clarify` — do not guess.
+2. Create a branch `feat/<issue>-<slug>`.
+3. Route to the role agent: backend work → `backend-dev`; Angular work → `frontend-dev`; test strengthening → `test-designer`. Each writes the failing test first, then the code.
+4. Run the local gates: format, lint, changed-module tests, `eco-forge-trace` for the feature. Fix failures before proceeding.
+5. Have `code-reviewer` review the diff (read-only). Address blocking findings.
+6. Open an MR from the template with the trace (REQ → test → UAT), the gate results, and the issue link. Update the issue status.
+A human merges. Agents never merge, never push to protected branches, never force-push (the guard hook enforces this).
+
+## /eco:bugfix <issue>
+1. Reproduce: write a FAILING regression test that captures the bug, referencing the issue and REQ-ID.
+2. Fix the root cause (not the symptom). The regression test must now pass.
+3. Run the gates; `code-reviewer` reviews.
+4. Open an MR; write a short RCA (what, why, prevention) on the issue. Run `/eco:retro` to capture any reusable lesson.
+
+## Rules
+- Test-first, always. No code without a failing test that defines "done".
+- Synthetic data only; the PII guard blocks real data.
+- Scope: implement the item, nothing more. Out-of-scope findings → a new issue, not silent extra changes.
