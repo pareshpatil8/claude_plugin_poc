@@ -27,10 +27,14 @@ Nothing light-installed here is part of `@yourorg/eco-forge`. The package ships 
 Trivy reached its vuln DB through the agent proxy by mounting /root/.ccr/ca-bundle.crt and passing
 HTTPS_PROXY/SSL_CERT_FILE — the same thing your Nexus ORAS mirror handles in production.
 
-## Session 4 additions (token-tool benchmark)
+## Session 4 additions (token-tool benchmark — context-mode, ponytail, rtk)
 | Tool | Installed as | Used for | Status |
 |---|---|---|---|
-| context-mode 1.0.169 (Elastic License 2.0) | `npm i -g context-mode@1.0.169` (global, pinned) + per-run FTS5 index/session DBs under each throwaway workspace's `.ctxstore/` and `/root/.claude/context-mode/` | Benchmark arm `eco-ctx`: measure the context-mode token tool vs `eco-full` | **To remove on teardown**: `npm rm -g context-mode`; delete `/root/.claude/context-mode`. Workspaces are temp-dir and auto-cleaned; `.ctxstore` lives inside them. Not committed; never part of `@yourorg/eco-forge` (production would install the pinned upstream from Nexus with `/ctx-insight` blocked and `CTX_FETCH_STRICT=1`). |
+| context-mode 1.0.169 (Elastic License 2.0) | `npm i -g context-mode@1.0.169` (global, pinned) + per-run FTS5 DBs under each throwaway workspace's `.ctxstore/` and `/root/.claude/context-mode/` | Benchmark arm `eco-ctx` | **REMOVED**: `npm rm -g context-mode` (141 pkgs) + deleted `/root/.claude/context-mode`. Workspaces are temp-dir, auto-cleaned. |
+| ponytail (MIT, DietrichGebert/ponytail) | `git clone` to `/tmp/ponytail-src` (session scratch) | Benchmark arm `eco-ponytail` | **Ephemeral**: `/tmp` clone, discarded with the container; nothing committed. |
+| rtk 0.49.0 (Apache-2.0 CLI + BUSL-1.1 engine, rtk-ai/rtk) | `git clone` to `/tmp/rtk-src` + `cargo build --release` (binary in that tree) | Benchmark arm `eco-rtk` | **Ephemeral**: `/tmp` clone + build artifacts, discarded with the container; nothing committed. |
 
-In production, context-mode is installed from the Nexus npm mirror (pinned), the hosted `/ctx-insight`
-dashboard command is blocked, and `CTX_FETCH_STRICT=1` is set — matching the eval decision.
+The arm wiring code (`src/bench/{context-mode,ponytail,rtk}.ts`) ships in eco-forge as the benchmark
+integration only — it points at an external install, it does not bundle any of these tools. In
+production each is installed from the Nexus mirror (pinned); context-mode additionally has the hosted
+`/ctx-insight` command blocked and `CTX_FETCH_STRICT=1` set, matching the eval decision.
