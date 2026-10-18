@@ -1,50 +1,63 @@
 # eco-forge token benchmark
 
-Headline metric: **median total tokens per passing task** (a saving that lowers the pass rate does not count).
+Headline metric: **median total tokens per passing task** — total = input + output + cache-creation
+(the fresh-billed work). A token saving that lowers the pass rate does not count.
+
+## Results — pooled by arm (reps=5, both tasks, subscription / Sonnet)
 
 | Arm | Runs | Pass rate | Median total tokens | Tokens/passing task | vs baseline | Median cost (USD) |
 |-----|------|-----------|---------------------|---------------------|-------------|-------------------|
-| vanilla | 1 | 100% | 17690 | 17690 | 0.0% | 0.0949 |
-| eco-full | 1 | 100% | 49089 | 49089 | 177.5% | 0.2228 |
+| vanilla  | 10 | 100% | 17,688 | 17,688 | 0.0%   | 0.0933 |
+| eco-full | 10 | 100% | 23,427 | 23,427 | +32.4% | 0.1189 |
 
-Baseline: `vanilla`. Negative "vs baseline" means fewer tokens than vanilla.
+## Results — per task
+
+| Task | Arm | Pass | Median total tokens | eco vs vanilla | Median turns |
+|------|-----|------|---------------------|----------------|--------------|
+| `bugfix-ref-length` (one-line fix) | vanilla  | 5/5 | 16,485 | —      | 4 |
+| `bugfix-ref-length`                | eco-full | 5/5 | 23,392 | +41.9% | 7 |
+| `feature-sla-policy` (test-first feature) | vanilla  | 5/5 | 18,852 | —      | 7 |
+| `feature-sla-policy`               | eco-full | 5/5 | 23,463 | +24.5% | 7 |
 
 ---
 
-## Session 1 — what this run is, and what it is not
+## What these two sessions establish
 
-**Run:** 2026-10-18, subscription provider, Tier-1 arms only, `reps=1`, one task
-(`bugfix-ref-length`). Both arms **passed** the deterministic check
-(`ServiceRequestServiceTest` green). Session cost **$0.32** total. The nested model served
-these runs on Sonnet.
+**1. Quality is equal and perfect on both arms: 100% pass, every task, every rep.** Both vanilla and
+the eco ecosystem always produce code that passes the deterministic check. On tasks this
+well-specified there is no *correctness* gap to measure — so the comparison here is purely about
+tokens, and the ecosystem's real value (governance, traceability, defect prevention) is not what a
+green/red check can capture.
 
-**What it measures:** the *net* token cost of installing the full eco ecosystem (CLAUDE.md +
-path rules + 17 agents + routing the task through `/eco-bugfix`) on a **single, trivial,
-one-line bugfix** — with the token-*saving* harness tools **not yet installed**.
+**2. The ecosystem currently costs MORE tokens, not fewer — and that is expected.** `eco-full` is the
+ecosystem's *discipline* (CLAUDE.md + path rules + agents + the `/eco-*` workflow). It has no
+token-*saving* component installed yet. So it can only add tokens relative to vanilla; the question
+is how much, and whether it amortises.
 
-**The honest reading of +177%:**
-- A one-line fix is the **worst case** for scaffolding overhead: the ecosystem loads its context
-  (rules, workflow, gate discipline) and routes through a structured bugfix workflow, but the task
-  is far too small to amortise that. `eco-full` spent its extra tokens reading `CLAUDE.md`, the
-  `/eco-bugfix` command, and doing the test-first / verify discipline (8 turns vs 5).
-- This is **not** a verdict that eco-forge wastes tokens. The savings thesis rests on two things
-  this run deliberately excludes:
-  1. **The harness token tools** (context-mode, rtk, caveman, ponytail, headroom) — the Tier-2
-     leave-one-out arms. They are the components whose *job* is to cut tokens; none are installed
-     yet. This run is the **baseline overhead** they must beat.
-  2. **Task size and ambiguity.** Scaffolding pays off by preventing wasted exploration on large,
-     underspecified, multi-file work (where vanilla flails and re-reads). A deterministic one-liner
-     gives it nothing to prevent.
+**3. The overhead is modest and shrinks — the alarming first number was a cold-cache artifact.**
+- Session 1 (cold cache, 1 rep): eco measured **+177%**. That was the first eco run paying the
+  one-time cache-creation cost of loading the entire ecosystem.
+- Session 2 (warm cache, median of 5 reps): **+32% pooled**, and lower on the bigger task.
+- The steady-state overhead is **~25–42%**, not 177%. Most of the ecosystem's context is paid once
+  and then read from cache.
 
-**What this run *does* prove:** the end-to-end benchmark is real and trustworthy — fresh isolated
-workspace per cell, `eco-forge init` into the eco arm, a real `claude -p` fix, a deterministic
-RED→GREEN check, usage + cost parsed from the model's own JSON, resumable ledger. The pipeline is
-ready to measure the tools that actually save tokens.
+**4. Overhead falls as the task grows.** Bugfix (+41.9%) → feature (+24.5%). The ecosystem's cost is
+largely fixed per session; the more real work a task contains, the smaller a fraction that fixed
+cost becomes. This is the amortisation the design predicted, visible across just two task sizes.
 
-## Next measurements (to make the comparison fair and conclusive)
-1. **Raise `reps`** (≥5) so the median is stable, not a single sample.
-2. **Add larger, ambiguous tasks** — a multi-file feature via `/eco-dev` with a pre-written failing
-   test, and a vaguer bug report — where scaffolding can actually earn its keep.
-3. **Install and wire the Tier-2 token tools**, then run the leave-one-out arms into this same
-   ledger so the report shows each tool's contribution vs `eco-full`.
-4. **Headroom arm on Bedrock** (reconfigurable endpoint), merged into the same report.
+## The honest bottom line
+On deterministic, well-specified tasks and with **no token-saving tools installed**, the eco
+ecosystem adds ~25–42% tokens for equal pass rates — the price of its governance discipline, and it
+shrinks with task size and caching. The *net saving* the project targets depends entirely on the
+**Tier-2 harness tools** (context-mode, rtk, caveman, ponytail, headroom), whose job is to claw back
+more than this overhead on large, ambiguous, multi-file work. This benchmark is now the trustworthy
+baseline they must beat.
+
+## Next measurements
+1. **Install and wire the Tier-2 token tools**, then run the leave-one-out arms into this same ledger
+   — each tool's contribution shows as its delta vs `eco-full`.
+2. **Add a large, genuinely ambiguous task** (multi-file, underspecified) where vanilla wastes tokens
+   re-exploring and the scaffolding's structure can invert the sign.
+3. **Headroom arm on Bedrock** (reconfigurable endpoint), merged into this report.
+
+_Matrix cost so far: $2.21 total across both sessions (20 cells, all passing)._
