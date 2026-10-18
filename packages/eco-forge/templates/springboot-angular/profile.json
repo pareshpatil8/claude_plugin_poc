@@ -89,6 +89,34 @@
     {
       "dest": "quality/semgrep/eco-angular.yml",
       "template": "quality/semgrep/eco-angular.yml.tmpl"
+    },
+    {
+      "dest": ".claude/skills/eco-spec-pipeline/SKILL.md",
+      "template": ".claude/skills/eco-spec-pipeline/SKILL.md.tmpl"
+    },
+    {
+      "dest": ".claude/commands/eco-intake.md",
+      "template": ".claude/commands/eco-intake.md.tmpl"
+    },
+    {
+      "dest": ".claude/commands/eco-spec.md",
+      "template": ".claude/commands/eco-spec.md.tmpl"
+    },
+    {
+      "dest": ".claude/commands/eco-design.md",
+      "template": ".claude/commands/eco-design.md.tmpl"
+    },
+    {
+      "dest": ".claude/commands/eco-plan.md",
+      "template": ".claude/commands/eco-plan.md.tmpl"
+    },
+    {
+      "dest": ".claude/commands/eco-uat.md",
+      "template": ".claude/commands/eco-uat.md.tmpl"
+    },
+    {
+      "dest": ".claude/commands/eco-export.md",
+      "template": ".claude/commands/eco-export.md.tmpl"
     }
   ]
 }

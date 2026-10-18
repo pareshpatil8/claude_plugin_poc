@@ -7,7 +7,8 @@
   "bin": {
     "eco-forge": "dist/cli.js",
     "eco-forge-guard": "dist/guard-cli.js",
-    "eco-forge-gate": "dist/gates/cli.js"
+    "eco-forge-gate": "dist/gates/cli.js",
+    "eco-forge-trace": "dist/gates/trace-cli.js"
   },
   "files": [
     "dist",

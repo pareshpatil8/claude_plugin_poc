@@ -1,0 +1,51 @@
+---
+name: eco-spec-pipeline
+description: >-
+  Produce traceable specification and design documents for a feature. Use for /eco:intake,
+  /eco:spec, /eco:design, /eco:plan, /eco:uat and /eco:export. One source of truth: every
+  requirement gets a REQ-ID that flows into design, tasks, tests and UAT.
+---
+
+# Spec pipeline
+
+All outputs live under `docs/specs/<feature>/`. Each step reads the previous outputs and writes
+its own; never restate content, link to it. Keep documents terse and structured so they generate
+from the spec rather than being re-authored. Use synthetic data only in examples.
+
+## Steps
+
+### /eco:intake <feature>
+Read every source the user provides (BRD, notes, Figma export/link). Write `intake.md`: each fact
+on its own line, each citing its source. Flag contradictions. No interpretation yet.
+
+### /eco:clarify <feature>
+Delegate to the `eco-clarify` skill (checklists + live interview). Gate: no blocking question open.
+
+### /eco:spec <feature>
+Write `spec.md`, `nfr.md`, `data-catalog.md`.
+- `spec.md`: a requirements table. Each row: `REQ-nnn | statement | acceptance criteria`. Allocate
+  REQ-IDs sequentially; never reuse or renumber. Record approved assumptions as `ASSUMPTION:` lines.
+- `nfr.md`: numeric NFR targets (from the nfr checklist), each tagged with the REQ-IDs it governs.
+- `data-catalog.md`: every data field with PII class, purpose, consent basis, retention (dpdp checklist).
+Gate: spec sign-off (human).
+
+### /eco:design <feature>
+Write `hld.md`, `lld.md`, `integration.md`, `api/openapi.yaml`, and ADRs under `docs/adr/`.
+Each design section cites the REQ-IDs it realises. Diagrams are Mermaid text, not images.
+Gate: design sign-off (human).
+
+### /eco:plan <feature>
+Write `tasks.md`: work items, each citing its REQ-IDs and a definition of done. When GitLab is
+configured, push these as issues (via the GitLab MCP) grouped under a milestone.
+
+### /eco:uat <feature>
+Write `uat.md`: at least one UAT case per REQ-ID, as Given/When/Then, in business language.
+
+### /eco:export <feature>
+Render the documents to branded DOCX/PDF for sign-off (pandoc or the document skills, whichever
+the project configured). Record the sign-off on the GitLab issue, not in the document.
+
+## Traceability (enforced, not optional)
+After `/eco:uat`, run `eco-forge-trace docs/specs/<feature>`. It fails the build unless every
+REQ-ID has at least one test and one UAT case, and there are no orphan references. Fix gaps before
+moving on. The generated `trace.md` is the REQ -> design -> task -> test -> UAT view.
