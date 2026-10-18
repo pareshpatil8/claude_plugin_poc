@@ -214,6 +214,15 @@ Not installed yet but installable: helm, kind, kubectl, Semgrep, Trivy, the othe
 - The in-house IdP; your Figma files through the Figma MCP with your seats
 - Pen-test sign-off, legal DPDP review, the pilot team
 
+### Decisions (2026-10-18)
+
+| Topic | Decision |
+|---|---|
+| Class B stand-ins | **All** (GitLab CE + runner, Nexus OSS, kind + Argo CD, Vault dev, Keycloak, DefectDojo/Dependency-Track) are rehearsed here; your environment stays authoritative |
+| Benchmark size (subscription) | **Medium:** ~15 tasks × 3 runs × ~11 arms, spread over several days |
+| Class C acceptance kit | Run by **Paresh** directly; reports shared back |
+| Tool selection | Accepted **with changes**; changes pending |
+
 **Delivery approach for Class C:** eco-forge ships an **acceptance kit**:
 - `eco-forge doctor --report` and `eco-forge verify <area>` scripts;
 - a step-by-step runbook;
