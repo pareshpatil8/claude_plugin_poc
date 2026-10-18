@@ -173,6 +173,38 @@
     {
       "dest": ".claude/commands/eco-bugfix.md",
       "template": ".claude/commands/eco-bugfix.md.tmpl"
+    },
+    {
+      "dest": ".claude/agents/security-reviewer.md",
+      "template": ".claude/agents/security-reviewer.md.tmpl"
+    },
+    {
+      "dest": ".claude/agents/deep-taint-reviewer.md",
+      "template": ".claude/agents/deep-taint-reviewer.md.tmpl"
+    },
+    {
+      "dest": ".claude/agents/product-analyst.md",
+      "template": ".claude/agents/product-analyst.md.tmpl"
+    },
+    {
+      "dest": ".claude/agents/nfr-analyst.md",
+      "template": ".claude/agents/nfr-analyst.md.tmpl"
+    },
+    {
+      "dest": ".claude/agents/integration-analyst.md",
+      "template": ".claude/agents/integration-analyst.md.tmpl"
+    },
+    {
+      "dest": ".claude/agents/privacy-reviewer.md",
+      "template": ".claude/agents/privacy-reviewer.md.tmpl"
+    },
+    {
+      "dest": ".claude/agents/solution-architect.md",
+      "template": ".claude/agents/solution-architect.md.tmpl"
+    },
+    {
+      "dest": ".claude/agents/qa-uat-writer.md",
+      "template": ".claude/agents/qa-uat-writer.md.tmpl"
     }
   ]
 }

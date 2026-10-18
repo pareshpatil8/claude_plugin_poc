@@ -15,7 +15,9 @@ describe("build agents install correctly", () => {
   const agents = readdirSync(agentsDir);
 
   it("ships the core build + review agents", () => {
-    for (const name of ["backend-dev.md", "frontend-dev.md", "test-designer.md", "code-reviewer.md"]) {
+    for (const name of ["backend-dev.md", "frontend-dev.md", "test-designer.md", "code-reviewer.md",
+      "security-reviewer.md", "deep-taint-reviewer.md", "product-analyst.md", "nfr-analyst.md",
+      "integration-analyst.md", "privacy-reviewer.md", "solution-architect.md", "qa-uat-writer.md"]) {
       assert.ok(agents.includes(name), `missing ${name}`);
     }
   });
@@ -31,10 +33,18 @@ describe("build agents install correctly", () => {
     }
   });
 
-  it("read-only reviewer has no Write/Edit tool", () => {
-    const reviewer = readFileSync(path.join(agentsDir, "code-reviewer.md"), "utf8");
-    const toolsLine = /tools:.*/.exec(reviewer)?.[0] ?? "";
-    assert.ok(!/\b(Write|Edit)\b/.test(toolsLine), "code-reviewer must be read-only");
+  it("read-only reviewers have no Write/Edit of code", () => {
+    for (const name of ["code-reviewer.md", "security-reviewer.md", "deep-taint-reviewer.md"]) {
+      const toolsLine = /tools:.*/.exec(readFileSync(path.join(agentsDir, name), "utf8"))?.[0] ?? "";
+      assert.ok(!/\bEdit\b/.test(toolsLine) && !/\bWrite\b(?!\(docs)/.test(toolsLine), `${name} must not edit code`);
+    }
+  });
+
+  it("spec agents write only under docs", () => {
+    for (const name of ["product-analyst.md", "solution-architect.md", "nfr-analyst.md", "qa-uat-writer.md"]) {
+      const body = readFileSync(path.join(agentsDir, name), "utf8");
+      assert.match(body, /only.*(docs|nfr\.md|uat\.md|integration)/i, `${name} should scope writes to docs`);
+    }
   });
 
   it("backend-dev cannot edit infra paths (no Helm/Dockerfile in its tools)", () => {
