@@ -40,6 +40,8 @@
 
 ## 2. The tools you named: coverage and decision
 
+> **Superseded** by `2026-10-18-eco-forge-tool-evaluation.md`, which evaluates all 33 repositories you sent from their READMEs and licences. Key changes: memory default is now **memsearch** (not claude-mem); "kirodrew" = KiroCrew (excluded); "graft" = Trail, formerly Graft (benchmark challenger); new defaults include code-review-graph, rtk (hook mode), anydoc, opendataloader-pdf, book-to-skill, mattpocock/skills, fable-judge, piomin Spring Boot pack.
+
 | Tool (as named) | What it is (our understanding) | Decision | Where it fits |
 |---|---|---|---|
 | **Hindsight** | Agent memory system (retain/recall/reflect) with a server and DB | ➕ Optional adapter for personal recall; ⏳ shared server later | Layer 5 Memory |
@@ -98,7 +100,7 @@
 | Figma MCP | Design context | ✅ (route chosen by benchmark) | Workstation (remote or desktop) |
 | context-mode MCP | Token saving | ✅ | Workstation |
 | Playwright MCP | UI checks by agents | ✅ | Workstation |
-| claude-mem | Personal recall | ✅ if verified, else off | Workstation |
+| memsearch (local ONNX + Milvus Lite) | Personal recall | ✅ (see tool evaluation) | Workstation |
 | Serena, Context7 | Code navigation, library docs | ➕ | Workstation |
 | Hindsight, Graphiti, Headroom, Ruflo, Paperclip | Memory, compression, orchestration | ⏳ | — |
 
@@ -182,7 +184,7 @@
 
 | Prerequisite | Windows | Linux | Installed by |
 |---|---|---|---|
-| Node.js LTS (20/22) + npm configured to Nexus | Installer / winget | Package manager / nvm | **User/IT**; then `doctor` checks |
+| Node.js **22 LTS** (context-mode needs ≥ 22.5) + npm configured to Nexus | Installer / winget | Package manager / nvm | **User/IT**; then `doctor` checks |
 | Git (Windows: **Git for Windows incl. Git Bash**, needed by Claude Code) | Required | Required | User/IT |
 | Corporate CA certificate (Node, Java, Git, containers) | Required | Required | `init` configures; IT provides the certificate |
 | Proxy env (`HTTPS_PROXY`, `NO_PROXY`) | Required | Required | `init` writes the config |
@@ -198,7 +200,7 @@
 | Playwright browsers | Downloaded through proxy or Nexus raw mirror | Same | **`init`** |
 | Figma: account seat; desktop app if using the desktop MCP | Per developer | Same | User |
 | GitLab personal access token (MCP), stored in the OS keychain | Per developer | Same | User; `init` prompts and stores it |
-| Python/uv or Bun | Only if optional MCP/memory components need them 🔍 | Same | `add <module>` checks |
+| **Python 3.11+ and uv** (code-review-graph, memsearch, book-to-skill, opendataloader SDK) | Required | Required | IT installs; `init` configures uv to use the Nexus PyPI proxy |
 | Obsidian | Optional | Optional | User |
 | IDE: IntelliJ or VS Code + Claude Code extension | Optional | Optional | User |
 
@@ -207,7 +209,7 @@
 | Item | Needed for |
 |---|---|
 | Nexus **npm hosted** repo (`@yourorg`) | Publishing eco-forge |
-| Nexus **npm proxy**, **Maven proxy**, **container proxy** (Docker Hub, Quay, registry.access.redhat.com, ghcr.io) | All dependencies and images |
+| Nexus **npm proxy**, **Maven proxy**, **PyPI proxy**, **container proxy** (Docker Hub, Quay, registry.access.redhat.com, ghcr.io) | All dependencies and images |
 | Nexus **raw** repo (or proxy allowlist) | Trivy DB, Semgrep rules, Nuclei templates, ZAP add-ons, Playwright browsers, OWASP Dependency-Check NVD data |
 | Proxy allowlist: Bedrock ap-south-1 endpoints, Figma, Claude (testing only), GitLab | Agents and MCP |
 | Plugin marketplace repo on GitLab reachable over git | Plugin install/update |
