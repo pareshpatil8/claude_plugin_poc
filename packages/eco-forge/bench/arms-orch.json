@@ -1,0 +1,15 @@
+[
+  {
+    "id": "eco-orch",
+    "eco": true,
+    "description": "Orchestrated baseline: eco-full, delivery-planner fans out to subagents with normal (verbose) hand-back reports.",
+    "claudeArgs": ["--permission-mode", "bypassPermissions"]
+  },
+  {
+    "id": "eco-orch-caveman",
+    "eco": true,
+    "caveman": true,
+    "description": "Orchestrated + caveman: same fan-out, but subagents report back to the orchestrator in terse caveman voice (compacting the subagent to orchestrator tokens).",
+    "claudeArgs": ["--permission-mode", "bypassPermissions"]
+  }
+]

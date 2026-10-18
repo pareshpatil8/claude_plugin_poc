@@ -1,0 +1,15 @@
+[
+  {
+    "id": "orch-sla-feature",
+    "title": "Orchestrated SLA feature (delivery-planner fan-out)",
+    "kind": "orchestration",
+    "prompt": "Use the delivery-planner subagent (via the Task tool) to drive this feature to done by DELEGATING to subagents: it must decompose the work, then spawn the backend-dev subagent to implement, the test-designer subagent to verify the tests, and the code-reviewer subagent to review the diff. Feature: implement SlaPolicy so the pre-written test src/test/java/com/yourorg/golden/request/SlaPolicyTest.java passes (TECHNICAL=4h, BILLING=24h, ACCOUNT=48h, OTHER=72h; dueDate = createdAt plus the window; isBreached is true only strictly after the due date). Do not modify the test. The task is complete only when `./mvnw -o -q -Dtest=SlaPolicyTest test` exits 0.",
+    "check": "./mvnw -o -q -Dtest=SlaPolicyTest test",
+    "addFiles": [
+      {
+        "path": "src/test/java/com/yourorg/golden/request/SlaPolicyTest.java",
+        "content": "package com.yourorg.golden.request;\n\nimport static org.assertj.core.api.Assertions.assertThat;\n\nimport java.time.Duration;\nimport java.time.Instant;\nimport org.junit.jupiter.api.Test;\n\nclass SlaPolicyTest {\n\n    private static final Instant CREATED = Instant.parse(\"2026-01-01T09:00:00Z\");\n\n    @Test\n    void dueDateIsCreatedAtPlusTheCategoryWindow() {\n        assertThat(SlaPolicy.dueDate(Category.TECHNICAL, CREATED)).isEqualTo(CREATED.plus(Duration.ofHours(4)));\n        assertThat(SlaPolicy.dueDate(Category.BILLING, CREATED)).isEqualTo(CREATED.plus(Duration.ofHours(24)));\n        assertThat(SlaPolicy.dueDate(Category.ACCOUNT, CREATED)).isEqualTo(CREATED.plus(Duration.ofHours(48)));\n        assertThat(SlaPolicy.dueDate(Category.OTHER, CREATED)).isEqualTo(CREATED.plus(Duration.ofHours(72)));\n    }\n\n    @Test\n    void breachedIsTrueOnlyStrictlyPastTheDueDate() {\n        var due = SlaPolicy.dueDate(Category.TECHNICAL, CREATED);\n        assertThat(SlaPolicy.isBreached(Category.TECHNICAL, CREATED, due.minusSeconds(1))).isFalse();\n        assertThat(SlaPolicy.isBreached(Category.TECHNICAL, CREATED, due)).isFalse();\n        assertThat(SlaPolicy.isBreached(Category.TECHNICAL, CREATED, due.plusSeconds(1))).isTrue();\n    }\n}\n"
+      }
+    ]
+  }
+]

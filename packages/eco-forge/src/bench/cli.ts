@@ -14,6 +14,7 @@ import { cleanupWorkspace, ensureDir, prepareWorkspace, type AddedFile, type Tas
 import { contextModeEnv, wireContextMode } from "./context-mode.js";
 import { ponytailEnv, wirePonytail } from "./ponytail.js";
 import { wireRtk } from "./rtk.js";
+import { wireCaveman } from "./caveman.js";
 
 interface TaskConfig extends BenchTask {
   readonly title?: string;
@@ -32,6 +33,8 @@ interface ArmConfig extends BenchArm {
   readonly ponytail?: boolean;
   /** When true, the rtk shell-output compression tool is wired into this arm's workspace. */
   readonly rtk?: boolean;
+  /** When true, the caveman terse-report skills are wired into this arm's workspace. */
+  readonly caveman?: boolean;
 }
 
 const EMPTY: RunUsage = { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheCreationTokens: 0, costUsd: 0, durationMs: 0, numTurns: 0 };
@@ -53,6 +56,7 @@ run options:
   --ponytail-root <path>   Clone dir of ponytail (required for a ponytail arm)
   --rtk-bin <path>         Built rtk binary (required for an rtk arm)
   --rtk-assets <path>      rtk repo dir with .rtk/filters.toml + awareness (required for an rtk arm)
+  --caveman-root <path>    Clone dir of caveman (required for a caveman arm)
   --run-timeout <sec>      Per-run claude timeout in seconds (default 900)
 
 report options:
@@ -116,6 +120,7 @@ function doRun(args: readonly string[]): number {
       "ponytail-root": { type: "string" },
       "rtk-bin": { type: "string" },
       "rtk-assets": { type: "string" },
+      "caveman-root": { type: "string" },
       "run-timeout": { type: "string" },
       help: { type: "boolean", short: "h", default: false },
     },
@@ -139,6 +144,7 @@ function doRun(args: readonly string[]): number {
   const ponytailRoot = values["ponytail-root"] ? path.resolve(values["ponytail-root"]) : undefined;
   const rtkBin = values["rtk-bin"] ? path.resolve(values["rtk-bin"]) : undefined;
   const rtkAssets = values["rtk-assets"] ? path.resolve(values["rtk-assets"]) : undefined;
+  const cavemanRoot = values["caveman-root"] ? path.resolve(values["caveman-root"]) : undefined;
 
   const tasks = loadJson<TaskConfig[]>(values.tasks);
   const arms = loadJson<ArmConfig[]>(values.arms);
@@ -193,6 +199,12 @@ function doRun(args: readonly string[]): number {
           throw new Error("--rtk-bin and --rtk-assets are required for an rtk arm");
         }
         wireRtk(ws, { bin: rtkBin, assetsRoot: rtkAssets });
+      }
+      if (armCfg.caveman) {
+        if (!cavemanRoot) {
+          throw new Error("--caveman-root is required for a caveman arm");
+        }
+        wireCaveman(ws, { root: cavemanRoot });
       }
       const invoked = spawnSync("claude", ["-p", prompt, "--output-format", "json", ...claudeArgs], {
         cwd: ws,
