@@ -205,6 +205,26 @@
     {
       "dest": ".claude/agents/qa-uat-writer.md",
       "template": ".claude/agents/qa-uat-writer.md.tmpl"
+    },
+    {
+      "dest": ".claude/agents/delivery-planner.md",
+      "template": ".claude/agents/delivery-planner.md.tmpl"
+    },
+    {
+      "dest": ".claude/agents/devops-engineer.md",
+      "template": ".claude/agents/devops-engineer.md.tmpl"
+    },
+    {
+      "dest": ".claude/agents/perf-engineer.md",
+      "template": ".claude/agents/perf-engineer.md.tmpl"
+    },
+    {
+      "dest": ".claude/agents/a11y-auditor.md",
+      "template": ".claude/agents/a11y-auditor.md.tmpl"
+    },
+    {
+      "dest": ".claude/agents/pentest-assistant.md",
+      "template": ".claude/agents/pentest-assistant.md.tmpl"
     }
   ]
 }

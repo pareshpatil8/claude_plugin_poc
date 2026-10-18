@@ -17,7 +17,8 @@ describe("build agents install correctly", () => {
   it("ships the core build + review agents", () => {
     for (const name of ["backend-dev.md", "frontend-dev.md", "test-designer.md", "code-reviewer.md",
       "security-reviewer.md", "deep-taint-reviewer.md", "product-analyst.md", "nfr-analyst.md",
-      "integration-analyst.md", "privacy-reviewer.md", "solution-architect.md", "qa-uat-writer.md"]) {
+      "integration-analyst.md", "privacy-reviewer.md", "solution-architect.md", "qa-uat-writer.md",
+      "delivery-planner.md", "devops-engineer.md", "perf-engineer.md", "a11y-auditor.md", "pentest-assistant.md"]) {
       assert.ok(agents.includes(name), `missing ${name}`);
     }
   });
@@ -38,6 +39,20 @@ describe("build agents install correctly", () => {
       const toolsLine = /tools:.*/.exec(readFileSync(path.join(agentsDir, name), "utf8"))?.[0] ?? "";
       assert.ok(!/\bEdit\b/.test(toolsLine) && !/\bWrite\b(?!\(docs)/.test(toolsLine), `${name} must not edit code`);
     }
+  });
+
+  it("delivery-planner is the orchestrator (has the Task tool, writes no app code)", () => {
+    const body = readFileSync(path.join(agentsDir, "delivery-planner.md"), "utf8");
+    const toolsLine = /tools:.*/.exec(body)?.[0] ?? "";
+    assert.match(toolsLine, /\bTask\b/, "delivery-planner must be able to spawn agents");
+    assert.match(body, /never write application code|do not implement application code|never write application/i);
+  });
+
+  it("devops-engineer owns infra paths; no dev agent does", () => {
+    const devops = readFileSync(path.join(agentsDir, "devops-engineer.md"), "utf8");
+    assert.match(devops, /helm\/|Dockerfile|argocd/i);
+    const backend = readFileSync(path.join(agentsDir, "backend-dev.md"), "utf8");
+    assert.match(backend, /[Nn]ever touch `helm\/`|never touch helm/i);
   });
 
   it("spec agents write only under docs", () => {
