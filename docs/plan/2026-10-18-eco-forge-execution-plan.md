@@ -267,3 +267,31 @@ gantt
 - The golden repo builds with Oracle Free Testcontainers.
 - The devbox image builds.
 - Status of every M0 request is known (date committed or escalated).
+
+---
+
+## 8. Progress log
+
+### Sprint 1, 2026-10-18
+
+| Task | Status | Evidence |
+|---|---|---|
+| M1-01 Scaffold | ✅ Done | TS workspace; lint, typecheck; GitLab CI (lint, test, pack, audit, gitleaks, Semgrep); 0 npm vulnerabilities; gitleaks clean; Semgrep 1.179.0 no findings |
+| M1-02 CLI core | ✅ Done | `init` (detection, rendering, dry-run, idempotent, conflicts, `--force` with backup, symlink-safe) and `doctor`; **64 tests, 94.5% line coverage**; tarball installed and run as a real npm bin; generated settings load in Claude Code 2.1.302 |
+| M2-01 Golden repo | ✅ Done (pulled forward) | Spring Boot 4.1.1 backend, **9 tests incl. Oracle Free + Kafka Testcontainers**; Angular 22.2.1 frontend, **8 tests**, production build 76 kB gzipped; initialised with eco-forge |
+
+### Decisions and findings during sprint 1
+
+1. **Managed-file tracking uses `.eco/manifest.json`, not in-file hash headers** (design §5.4). JSON files cannot carry comments, and a manifest also records the first-run greenfield/brownfield classification so re-runs stay stable.
+2. **Tests use Node's built-in runner (`node:test`) instead of Vitest** for eco-forge. Vitest 4.1 and 5.0.3 crash npm's resolver (`edgesOut` null). This also removes a dependency tree from a security-sensitive tool.
+3. **Workstation Node baseline is 22.23.x LTS** (`doctor` minimum 22.22.3). Angular 22 refuses Node 22.22.0. Supersedes "Node 22 LTS" in the components document.
+4. **Oracle vs H2 drift is real:** `NUMBER(19)` fails Hibernate validation on H2. Fixed with a Flyway `${id_type}` placeholder; recorded as the golden repo's first gotcha. This confirms design §8.3 (Oracle Testcontainers are authoritative).
+5. **Docker Hub rate-limits this environment (429).** GHCR/Quay mirrors work. Testcontainers image names are overridable (`TC_ORACLE_IMAGE`, `TC_KAFKA_IMAGE`), which maps directly onto the Nexus container proxy in your environment.
+6. **Version-age policy (≥ 2 weeks) is enforced on pins.** One documented exception: `vitest` 5.0.5 (dev-only) in the golden frontend, because 5.0.3 hits the same npm crash.
+
+### Next (sprint 1, continued)
+
+1. **M1-05 / M1-06:** guard hook and PII guard.
+2. **M1-08:** red-team suite. It also turns the deny rules from "the model refused" into "the tool blocked it".
+3. **M1-10:** clarify checklists.
+4. **M1-17:** bench harness (subscription), plus stand-in setup (GitLab CE, Nexus OSS, kind + Argo CD, Vault, Keycloak).
