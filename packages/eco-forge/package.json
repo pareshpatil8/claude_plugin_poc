@@ -13,7 +13,8 @@
     "eco-forge-spec-lint": "dist/qa/spec-lint-cli.js",
     "eco-forge-design-lint": "dist/qa/design-lint-cli.js",
     "eco-forge-perf": "dist/gates/nfr-perf-cli.js",
-    "eco-forge-bench": "dist/bench/cli.js"
+    "eco-forge-bench": "dist/bench/cli.js",
+    "eco-forge-acceptance": "dist/acceptance/cli.js"
   },
   "files": [
     "dist",
