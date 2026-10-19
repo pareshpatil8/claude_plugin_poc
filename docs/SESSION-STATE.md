@@ -77,6 +77,28 @@ situational (large-output work only), OFF for ordinary coding. Tools are benchma
 (context-mode npm; ponytail+rtk cloned/built), logged in teardown-register. caveman (skill, subagent→
 orchestrator only) + headroom (Bedrock proxy) NOT runnable here → deferred/documented.
 
+## BENCHMARK — FINAL (5 token-tool arms + orchestration + security pilot)
+Full matrix done, 100% pass throughout. See `docs/plan/2026-10-18-bench-report.md`, `...-six-tool-pilot-matrix.md`,
+`...-tested-tools.md`, `...-tool-evaluation-addendum.md`, `...-skill-evaluation-method.md`.
+- Token tools vs eco-full (median total tokens): ponytail **+4.8%** (best, fewer turns) · rtk **+7.2%**
+  (−0.8% on larger-output task) · context-mode **+27.6%** (worst on small output). Gate by task profile.
+- caveman (orchestration, delivery-planner fan-out): **−6.7% COST, 3/3 paired reps** (cost is the honest
+  metric — parent claude -p can't see subagent tokens). ON for multi-agent only. `caveman-compress` EXCLUDED (exfiltrates).
+- 6 NEW tools concluded: **Cloudflare security-audit skill = PILOTED 5/5 catch, 0 FP, $0.22 → ADOPT.**
+  Strix (pentest) + cognee (memory) = CHALLENGER; qm (yc-software/qm, team-agent platform) / KSoR
+  (panaversity/ksor, knowledge SDK) / DeerFlow = LATER.
+- Harness: `eco-forge-bench` (src/bench/*: cli, run, plan, ledger, session, metrics, workspace,
+  context-mode, ponytail, rtk, caveman). 181 tests green. Tools pinned/cloned, teardown-register updated;
+  context-mode removed post-run.
+
+## BLOCKED on credentials/runtime (to pilot next)
+- Strix / cognee / DeerFlow need a raw LLM key (LiteLLM). User will add **`ANTHROPIC_API_KEY`** as an
+  environment secret (US region OK for synthetic-golden-repo testing; Bedrock ap-south-1 for prod).
+  **Secrets load only in a NEW session/container.** Strix also needs the Docker daemon started.
+  SECURITY: a key pasted into chat earlier must be revoked; use a fresh key via the env-secret UI, never chat.
+- qm / KSoR need Node ≥24 (container has 22.22) → fetch Node 24 to scratchpad to pilot their CLIs.
+- headroom (model-proxy) needs the reconfigurable Bedrock endpoint → Bedrock env only.
+
 ## Pending (not built)
 - Mutation testing (PIT/Stryker) wired to gate. Full ablation matrix + OWASP Benchmark scorecard.
 - Brownfield /eco:onboard. Lefthook pre-commit (Tier 1) + ArchUnit. Curated 3rd-party content import.
