@@ -54,6 +54,10 @@ function claudeSettings(ctx: GeneratorContext): string {
   // stopped before tool output is captured or compressed. Enforcement lives in the hook, not the
   // model: exit 2 denies the call regardless of what the model intended.
   const guard = { type: "command", command: "eco-forge-guard" };
+  // Governance observes (never blocks): it appends an append-only who-did-what event after each tool
+  // call, when a subagent finishes, and at session end. It runs AFTER the guard so the guard's deny
+  // decision is already settled.
+  const govern = { type: "command", command: "eco-forge-govern hook" };
   return json({
     $schema: "https://json.schemastore.org/claude-code-settings.json",
     env,
@@ -61,6 +65,9 @@ function claudeSettings(ctx: GeneratorContext): string {
     hooks: {
       PreToolUse: [{ matcher: "*", hooks: [guard] }],
       UserPromptSubmit: [{ hooks: [guard] }],
+      PostToolUse: [{ matcher: "*", hooks: [govern] }],
+      SubagentStop: [{ hooks: [govern] }],
+      SessionEnd: [{ hooks: [govern] }],
     },
   });
 }

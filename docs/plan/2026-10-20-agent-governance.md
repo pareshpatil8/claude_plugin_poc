@@ -80,6 +80,39 @@ If you'd rather avoid AGPL, Langfuse + GitLab + Rekor already cover the audit ti
    provenance per release + DefectDojo/Dependency-Track trends = full, queryable, tamper-evident
    governance — no data leaving your network.
 
+## Appendix — ready-to-use config
+
+**Governance hook (shipped by eco-forge, wired automatically by `init`):** `settings.json` gets
+`PostToolUse` / `SubagentStop` / `SessionEnd` → `eco-forge-govern hook`, which appends to
+`.eco/governance/ledger.jsonl`. CI steps add outcomes:
+```
+eco-forge-govern record --gate semgrep:pass --new 0
+eco-forge-govern record --review code-reviewer:approved
+eco-forge-govern record --waiver <fp> --approver alice --reason "FP" --expires 2026-12-01
+eco-forge-govern record --merge <commit> --mr <gitlab-mr-url>
+eco-forge-govern report            # by actor, by event, gate/review timeline
+```
+Set `ECO_REQ_IDS="REQ-014 REQ-015"` in the pipeline so every event is REQ-tagged.
+
+**`/etc/claude-code/managed-settings.json` (ops installs — central, repo can't override; the Bedrock
+enforcement + telemetry path). Keep OTEL_LOG_* OFF for DPDP (metadata only):**
+```json
+{
+  "permissions": { "defaultMode": "manual", "disableBypassPermissionsMode": "disable" },
+  "allowManagedHooksOnly": true,
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+    "OTEL_METRICS_EXPORTER": "otlp",
+    "OTEL_LOGS_EXPORTER": "otlp",
+    "OTEL_EXPORTER_OTLP_PROTOCOL": "grpc",
+    "OTEL_EXPORTER_OTLP_ENDPOINT": "https://otel-collector.your-infra.internal:4317",
+    "OTEL_RESOURCE_ATTRIBUTES": "service.name=eco-forge,deployment.environment=preprod"
+  }
+}
+```
+Point `OTEL_EXPORTER_OTLP_ENDPOINT` at your in-cluster collector (feeds Langfuse / Tempo). Nothing
+leaves your network; no prompt/code content is exported.
+
 _Grounding: Claude Code docs (monitoring-usage, hooks, managed-settings, sub-agents, costs) verified
 2026-10-20; OSS licenses verified against project repos (Langfuse MIT, OpenLLMetry/Tekton Chains/
 cosign/OPA/Dependency-Track Apache-2.0, DefectDojo BSD-3)._
