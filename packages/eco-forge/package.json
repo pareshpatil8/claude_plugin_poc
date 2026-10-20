@@ -1,6 +1,6 @@
 {
   "name": "@yourorg/eco-forge",
-  "version": "0.1.0-dev.0",
+  "version": "0.1.0-rc.1",
   "description": "Installs and configures the eco-forge agentic delivery ecosystem around Claude Code",
   "license": "UNLICENSED",
   "type": "module",

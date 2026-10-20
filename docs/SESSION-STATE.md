@@ -99,6 +99,18 @@ Full matrix done, 100% pass throughout. See `docs/plan/2026-10-18-bench-report.m
 - qm / KSoR need Node ≥24 (container has 22.22) → fetch Node 24 to scratchpad to pilot their CLIs.
 - headroom (model-proxy) needs the reconfigurable Bedrock endpoint → Bedrock env only.
 
+## v1-RC MILESTONES DONE (scope frozen per charter)
+- **M-A scope charter** (`docs/plan/2026-10-20-eco-forge-scope-charter.md`) — thin glue; adopt don't
+  build; measure before default; north star = minimum tokens/maximum output.
+- **M-B governance** — `eco-forge-govern` append-only ledger (who-did-what: agent/human + REQ-ID +
+  tool + decision + gate/waiver/review/merge; digests only, no content). Auto-wired PostToolUse/
+  SubagentStop/SessionEnd. OSS stack = Langfuse+OpenLLMetry+Tekton Chains/cosign+OPA+DefectDojo/
+  Dependency-Track (`docs/plan/2026-10-20-agent-governance.md`).
+- **M-C mutation gate** — `eco-forge-mutation` parses PIT/Stryker → score vs `mutation.changedCodeMin:60`.
+- **M-D release** — version **0.1.0-rc.1**, CHANGELOG, 12 CLIs, 194 tests, tarball packed.
+- Next: user runs acceptance kit + one end-to-end feature in pre-prod on Bedrock = production sign-off.
+  Blocked-on-key pilots (Strix/cognee/DeerFlow) + headroom remain post-v1 adopt-if-measured.
+
 ## Pending (not built)
 - Mutation testing (PIT/Stryker) wired to gate. Full ablation matrix + OWASP Benchmark scorecard.
 - Brownfield /eco:onboard. Lefthook pre-commit (Tier 1) + ArchUnit. Curated 3rd-party content import.
