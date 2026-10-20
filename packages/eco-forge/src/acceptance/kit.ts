@@ -123,7 +123,7 @@ export const CHECKS: readonly Check[] = [
   {
     id: "gate-bins", area: "Gates", title: "eco-forge gate CLIs runnable", severity: "blocker",
     run: (p) => {
-      const bins = ["eco-forge-gate", "eco-forge-sca", "eco-forge-trace", "eco-forge-spec-lint", "eco-forge-design-lint", "eco-forge-perf"];
+      const bins = ["eco-forge-gate", "eco-forge-sca", "eco-forge-trace", "eco-forge-spec-lint", "eco-forge-design-lint", "eco-forge-perf", "eco-forge-mutation", "eco-forge-govern"];
       const missing = bins.filter((b) => !p.which(b));
       return missing.length === 0 ? ok(`all gate CLIs on PATH (${bins.length})`) : bad(`missing: ${missing.join(", ")}`, "Install the package globally (npm i -g @yourorg/eco-forge) so the gate CLIs resolve.");
     },
