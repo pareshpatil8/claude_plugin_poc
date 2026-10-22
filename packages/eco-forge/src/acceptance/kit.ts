@@ -51,6 +51,8 @@ const skip = (evidence: string, remediation = "") => ({ status: "skip" as const,
 
 const CROSS_REGION = /^(us|eu|apac|global)\./i;
 const INDIA_REGIONS = new Set(["ap-south-1", "ap-south-2"]);
+// An on-box gateway (headroom and similar) keeps traffic on the host until it forwards to Bedrock.
+const LOOPBACK = /^https?:\/\/(127\.0\.0\.1|localhost|\[::1\]|0\.0\.0\.0)(:\d+)?(\/|$)/i;
 
 export const CHECKS: readonly Check[] = [
   // ---- Runtime ----
@@ -81,14 +83,33 @@ export const CHECKS: readonly Check[] = [
   {
     id: "res-bedrock", area: "Residency", title: "Provider is Bedrock in an India region", severity: "blocker",
     run: (p) => {
-      const useBedrock = (p.envValue("CLAUDE_CODE_USE_BEDROCK") ?? "").toLowerCase();
-      if (useBedrock !== "1" && useBedrock !== "true") {
-        return bad("CLAUDE_CODE_USE_BEDROCK not set", "In production set CLAUDE_CODE_USE_BEDROCK=1 and use Bedrock (not a raw Anthropic key).");
-      }
       const region = p.envValue("AWS_REGION") ?? p.envValue("AWS_DEFAULT_REGION") ?? "";
-      return INDIA_REGIONS.has(region)
-        ? ok(`Bedrock, AWS_REGION=${region}`)
-        : bad(`AWS_REGION=${region || "(unset)"}`, "Set AWS_REGION=ap-south-1 (or ap-south-2) for India data residency.");
+      const regionOk = INDIA_REGIONS.has(region);
+      const regionFix = `Set AWS_REGION=ap-south-1 (or ap-south-2) for India data residency (saw ${region || "(unset)"}).`;
+      const useBedrock = (p.envValue("CLAUDE_CODE_USE_BEDROCK") ?? "").toLowerCase();
+      const nativeBedrock = useBedrock === "1" || useBedrock === "true";
+      const baseUrl = p.envValue("ANTHROPIC_BASE_URL") ?? "";
+      // On-box gateway (e.g. headroom): loopback base URL forwarding to Bedrock via AWS_PROFILE.
+      const viaLocalGateway = baseUrl !== "" && LOOPBACK.test(baseUrl) && p.envSet("AWS_PROFILE");
+
+      // Topology A — native Bedrock.
+      if (nativeBedrock) {
+        return regionOk ? ok(`native Bedrock, AWS_REGION=${region}`) : bad(`AWS_REGION=${region || "(unset)"}`, regionFix);
+      }
+      // Topology B — on-box gateway to Bedrock. Residency holds iff the gateway pins the India
+      // region; we can see the creds/region/model here but not the gateway's upstream, so we pass
+      // the blocker and flag the one thing left to confirm.
+      if (viaLocalGateway) {
+        return regionOk
+          ? ok(`Bedrock via on-box gateway (${baseUrl}); AWS_PROFILE set, AWS_REGION=${region} — confirm the gateway only forwards to this region`)
+          : bad(`on-box gateway but AWS_REGION=${region || "(unset)"}`, regionFix);
+      }
+      // Topology C — a REMOTE base URL can route out of India; we cannot certify it.
+      if (baseUrl !== "" && !LOOPBACK.test(baseUrl)) {
+        return bad(`ANTHROPIC_BASE_URL is a remote endpoint (${baseUrl})`, "A remote proxy can route data out of India. Use native Bedrock (CLAUDE_CODE_USE_BEDROCK=1, AWS_REGION=ap-south-1) or an on-box gateway (loopback base URL + AWS_PROFILE) that pins ap-south-1.");
+      }
+      // Neither topology detected.
+      return bad("no Bedrock topology detected (no CLAUDE_CODE_USE_BEDROCK=1 and no on-box gateway)", "Set CLAUDE_CODE_USE_BEDROCK=1 with AWS_REGION=ap-south-1, or run the on-box Bedrock gateway (ANTHROPIC_BASE_URL on loopback + AWS_PROFILE).");
     },
   },
   {

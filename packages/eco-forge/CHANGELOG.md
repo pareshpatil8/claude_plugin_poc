@@ -1,5 +1,15 @@
 # Changelog — @yourorg/eco-forge
 
+## 0.1.0-rc.3 — residency check is topology-aware (on-box Bedrock gateway)
+
+### Fixed
+- **`res-bedrock` residency check** now recognises **three topologies** instead of only native
+  Bedrock: (A) native `CLAUDE_CODE_USE_BEDROCK=1`, (B) an **on-box gateway** (loopback
+  `ANTHROPIC_BASE_URL` + `AWS_PROFILE`, e.g. headroom) forwarding to Bedrock ap-south-1 — now
+  **passes** with a note to confirm the gateway's upstream region, and (C) a **remote**
+  `ANTHROPIC_BASE_URL` — **fails** as a residency risk (can route out of India). Previously a valid
+  on-box-gateway deployment was reported NOT-READY. Two regression tests added.
+
 ## 0.1.0-rc.2 — acceptance-probe fix (Windows + stderr tools)
 
 ### Fixed

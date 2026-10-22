@@ -37,6 +37,26 @@ describe("acceptance kit", () => {
     assert.equal(report.results.find((r) => r.id === "res-no-cross-region")?.status, "fail"); // apac. prefix
   });
 
+  it("passes residency via an on-box gateway (loopback base URL + AWS_PROFILE) to Bedrock ap-south-1", async () => {
+    const env: Record<string, string> = {
+      ANTHROPIC_BASE_URL: "http://127.0.0.1:8787",
+      AWS_PROFILE: "bedrock-NGCBMGMT-Other",
+      AWS_REGION: "ap-south-1",
+      ANTHROPIC_DEFAULT_OPUS_MODEL: "arn:aws:bedrock:ap-south-1:124727572053:application-inference-profile/c46mcskdc3n5",
+    };
+    const p = probe({ envValue: (n) => env[n], envSet: (n) => env[n] !== undefined });
+    const report = await runKit(p);
+    assert.equal(report.results.find((r) => r.id === "res-bedrock")?.status, "pass");
+    assert.equal(report.results.find((r) => r.id === "res-no-cross-region")?.status, "pass");
+  });
+
+  it("fails residency for a REMOTE proxy base URL (could route out of India)", async () => {
+    const env: Record<string, string> = { ANTHROPIC_BASE_URL: "https://proxy.example.com", AWS_PROFILE: "x", AWS_REGION: "ap-south-1" };
+    const p = probe({ envValue: (n) => env[n], envSet: (n) => env[n] !== undefined });
+    const report = await runKit(p);
+    assert.equal(report.results.find((r) => r.id === "res-bedrock")?.status, "fail");
+  });
+
   it("skips (not fails) optional endpoints that are not configured", async () => {
     const report = await runKit(probe());
     const gitlab = report.results.find((r) => r.id === "plat-gitlab");
