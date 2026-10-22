@@ -1,9 +1,13 @@
 #!/usr/bin/env node
-import { execFileSync, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { parseArgs } from "node:util";
 import { formatMarkdown, runKit, type Probe } from "./kit.js";
+
+// On Windows, `java`/`mvn` are often .cmd/.exe or App Execution Aliases that a bare
+// execFile cannot resolve, so run version probes through the shell there.
+const USE_SHELL = process.platform === "win32";
 
 const HELP = `Usage: eco-forge-acceptance [--out <dir>] [--json]
 
@@ -20,21 +24,20 @@ Optional environment variables it will verify when set (endpoints only; values n
   GITLAB_URL, VAULT_ADDR, OIDC_DISCOVERY_URL, DEFECTDOJO_URL, DEPENDENCYTRACK_URL
 `;
 
-const realProbe: Probe = {
+export const realProbe: Probe = {
   which: (cmd) => {
     const r = spawnSync(process.platform === "win32" ? "where" : "which", [cmd], { encoding: "utf8" });
     return r.status === 0 ? (r.stdout.split("\n")[0]?.trim() || null) : null;
   },
   version: (cmd, args) => {
-    try {
-      // java -version prints to stderr; capture both.
-      const out = execFileSync(cmd, [...args], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], timeout: 15_000 });
-      return (out.split("\n")[0] ?? "").trim() || null;
-    } catch (e) {
-      const err = e as { stderr?: string; stdout?: string };
-      const text = (err.stderr || err.stdout || "").toString();
-      return text.split("\n")[0]?.trim() || null;
-    }
+    // `java -version` writes to stderr and exits 0; `node --version` writes to stdout.
+    // spawnSync never throws on a non-zero exit, so combine both streams regardless of
+    // exit code and take the first non-empty line.
+    const r = spawnSync(cmd, [...args], { encoding: "utf8", timeout: 15_000, shell: USE_SHELL });
+    if (r.error) return null;
+    const text = ((r.stdout ?? "") + (r.stderr ?? "")).trim();
+    const first = text.split("\n").map((l) => l.trim()).find((l) => l.length > 0);
+    return first ?? null;
   },
   envSet: (name) => process.env[name] !== undefined && process.env[name] !== "",
   envValue: (name) => process.env[name],

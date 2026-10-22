@@ -1,5 +1,15 @@
 # Changelog — @yourorg/eco-forge
 
+## 0.1.0-rc.2 — acceptance-probe fix (Windows + stderr tools)
+
+### Fixed
+- **`eco-forge-acceptance` version probe** — tools that print their version to **stderr** and
+  exit 0 (notably `java -version`) were reported as "not found" because the probe read only
+  stdout on the success path. The probe now combines stdout+stderr via `spawnSync` (never throws
+  on non-zero exit) and resolves through the shell on Windows so `.cmd`/`.exe`/App-Execution-Alias
+  executables (`java`, `mvn`) are found. Regression test added. No behaviour change on Linux/macOS
+  for stdout tools.
+
 ## 0.1.0-rc.1 — v1 release candidate (pre-prod acceptance)
 
 First candidate for the pre-prod acceptance run. Everything below is tested in the AI container

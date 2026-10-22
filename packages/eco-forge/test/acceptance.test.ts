@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import { realProbe } from "../src/acceptance/cli.js";
 import { CHECKS, formatMarkdown, runKit, type Probe } from "../src/acceptance/kit.js";
 
 function probe(overrides: Partial<Probe> = {}): Probe {
@@ -47,6 +48,16 @@ describe("acceptance kit", () => {
     const p = probe({ which: (c) => (c === "oc" ? "/usr/bin/oc" : null), version: () => "prod-cluster/api" });
     const report = await runKit(p);
     assert.equal(report.results.find((r) => r.id === "plat-oc-devonly")?.status, "fail");
+  });
+
+  it("realProbe.version captures tools that print the version to stderr and exit 0 (regression: java -version)", () => {
+    // node --version -> stdout
+    assert.match(realProbe.version("node", ["--version"]) ?? "", /^v\d+\./);
+    // a program that writes to stderr and exits 0 (like `java -version`) must still be captured
+    const stderrVersion = realProbe.version(process.execPath, ["-e", "process.stderr.write('tool 21.0.0\\n')"]);
+    assert.equal(stderrVersion, "tool 21.0.0");
+    // a missing executable returns null, not a throw
+    assert.equal(realProbe.version("definitely-not-a-real-binary-xyz", ["--version"]), null);
   });
 
   it("markdown report includes the verdict and a row per check", async () => {
